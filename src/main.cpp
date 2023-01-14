@@ -54,16 +54,26 @@ void genKey()
     encoder.MessageEnd();
     std::cout << std::endl;
 
-    std::fstream testKey("./test/testKey", std::ios::out);
-    if (!testKey.is_open())
-    {
-        std::cout << "Error writing to file." << std::endl;
-    }
-    else
-    {
-        testKey >> key;
-        testKey >> iv;
-    }
+    // std::string stringKey = std::string((const char*)key.data(), key.size());
+    // std::string stringIV = std::string((const char*)iv.data(), iv.size());
+    //
+    // // std::cout << "Converted to string: " << std::endl;
+    // // std::cout << stringKey << std::endl;
+    // // std::cout << stringIV << std::endl;
+    // // std::cout.flush();
+    //
+    // std::fstream testKey("./test/testKey", std::ios::out);
+    // if (!testKey.is_open())
+    // {
+    //     std::cout << "Error writing to file." << std::endl;
+    // }
+    // else
+    // {
+    //     testKey << stringKey;
+    //     testKey << std::endl;
+    //     testKey << stringIV;
+    //     testKey << std::endl;
+    // }
 }
 
 void printMenu()
@@ -91,6 +101,8 @@ void printDashboard()
 
 int main (int argc, char *argv[])
 {
+    genKey();
+
     std::string userStatus;
     printDashboard();
 
