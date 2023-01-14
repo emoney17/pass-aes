@@ -2,7 +2,7 @@
 
 CC = g++
 SRC = src/*.cpp
-PROG = a.out
+PROG = safe-pass.exe
 
 # Clean project and compile program
 build: clean $(PROG)
@@ -17,4 +17,4 @@ run: build
 
 # Compile the program from latest soucrce
 $(PROG): $(SRC)
-	$(CC) $(SRC) -o $(PROG)
+	$(CC) $(SRC) -I ./cryptopp ./cryptopp/libcryptopp.a -o $(PROG)
