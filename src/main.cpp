@@ -5,7 +5,6 @@
 #include "osrng.h"
 #include "hex.h"
 
-#include <ios>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -38,11 +37,13 @@ class User
 // Function to generate a key along with iv
 void genKey()
 {
-    CryptoPP::AutoSeededRandomPool prng;
-    CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
+    using namespace CryptoPP;
 
-    CryptoPP::SecByteBlock key(CryptoPP::AES::DEFAULT_KEYLENGTH);
-    CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
+    AutoSeededRandomPool prng;
+    HexEncoder encoder(new CryptoPP::FileSink(std::cout));
+
+    SecByteBlock key(CryptoPP::AES::DEFAULT_KEYLENGTH);
+    SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
 
     prng.GenerateBlock(key, key.size());
     prng.GenerateBlock(iv, iv.size());
@@ -62,8 +63,8 @@ void genKey()
 
     // Convert byte to string COMPLETE!
     std::string keyS;
-    CryptoPP::HexEncoder encodeS;
-    encodeS.Attach(new CryptoPP::StringSink(keyS));
+    HexEncoder encodeS;
+    encodeS.Attach(new StringSink(keyS));
     encodeS.Put(key.data(), key.size());
     encodeS.MessageEnd();
 
@@ -71,15 +72,15 @@ void genKey()
 
     // Convert back to bytes COMPLETE!
     std::string decoded;
-    CryptoPP::HexDecoder decoder;
-    decoder.Put((CryptoPP::byte*)keyS.data(), keyS.size());
+    HexDecoder decoder;
+    decoder.Put((byte*)keyS.data(), keyS.size());
     decoder.MessageEnd();
 
-    CryptoPP::word64 size = decoder.MaxRetrievable();
+    word64 size = decoder.MaxRetrievable();
     if(size && size <= SIZE_MAX)
     {
         decoded.resize(size);
-        decoder.Get((CryptoPP::byte*)&decoded[0], decoded.size());
+        decoder.Get((byte*)&decoded[0], decoded.size());
     }
     std::cout << "Encoded -> Decoded Key: " << decoded << std::endl;
 
@@ -94,10 +95,61 @@ void genKey()
     std::ifstream readTest("./test/testFile");
     std::getline(readTest, line1);
     std::getline(readTest, line2);
-    std::cout << "Line 1 from the file: " << line1 << std::endl;
-    std::cout << "Line 2 from the file: " << line2 << std::endl;
+    std::cout << "Line 1 from the file encoded: " << line1 << std::endl;
+    std::cout << "Line 2 from the file raw: " << line2 << std::endl;
     readTest.close();
 
+    // Testing encryption
+
+    std::string plain = "This is a cipher test.";
+    std::string cipher, recovered;
+
+    std::cout << "Plain text: " << plain << std::endl;
+
+    try
+    {
+        CBC_Mode< AES >::Encryption e;
+        e.SetKeyWithIV(key, key.size(), iv);
+
+        StringSource s(plain, true,
+            new StreamTransformationFilter(e,
+                new StringSink(cipher)
+            ) // StreamTransformationFilter
+        ); // StringSource
+    }
+    catch(const Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+    // Print out hexcode of encoded plain text
+    std::cout << "cipher text: ";
+    encoder.Put((const byte*)&cipher[0], cipher.size());
+    encoder.MessageEnd();
+    std::cout << std::endl;
+
+    std::cout << "cipher text raw: " << cipher << std::endl;
+
+    // Recover the text
+    try
+    {
+        CBC_Mode< AES >::Decryption d;
+        d.SetKeyWithIV(key, key.size(), iv);
+
+        StringSource s(cipher, true,
+            new StreamTransformationFilter(d,
+                new StringSink(recovered)
+            ) // StreamTransformationFilter
+        ); // StringSource
+
+        std::cout << "recovered text: " << recovered << std::endl;
+    }
+    catch(const Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
 }
 
 // Move this to main
