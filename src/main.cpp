@@ -47,15 +47,15 @@ void genKey()
     prng.GenerateBlock(key, key.size());
     prng.GenerateBlock(iv, iv.size());
 
-    std::cout << "key: ";
-    encoder.Put(key, key.size());
-    encoder.MessageEnd();
-    std::cout << std::endl;
-
-    std::cout << "iv: ";
-    encoder.Put(iv, iv.size());
-    encoder.MessageEnd();
-    std::cout << std::endl;
+    // std::cout << "key: ";
+    // encoder.Put(key, key.size());
+    // encoder.MessageEnd();
+    // std::cout << std::endl;
+    //
+    // std::cout << "iv: ";
+    // encoder.Put(iv, iv.size());
+    // encoder.MessageEnd();
+    // std::cout << std::endl;
 
     /*********************************\
     \*********************************/
@@ -67,7 +67,7 @@ void genKey()
     encodeS.Put(key.data(), key.size());
     encodeS.MessageEnd();
 
-    std::cout << keyS << std::endl;
+    std::cout << "Decoded byte key: " << keyS << std::endl;
 
     // Convert back to bytes COMPLETE!
     std::string decoded;
@@ -82,6 +82,22 @@ void genKey()
         decoder.Get((CryptoPP::byte*)&decoded[0], decoded.size());
     }
     std::cout << "Encoded -> Decoded Key: " << decoded << std::endl;
+
+    // Chec if can be written to file COMPLETE!
+    std::ofstream testFile("./test/testFile");
+    testFile << keyS << std::endl;
+    testFile << decoded << std::endl;
+    testFile.close();
+
+    // Check if can be read from a file COMPLETE!
+    std::string line1, line2;
+    std::ifstream readTest("./test/testFile");
+    std::getline(readTest, line1);
+    std::getline(readTest, line2);
+    std::cout << "Line 1 from the file: " << line1 << std::endl;
+    std::cout << "Line 2 from the file: " << line2 << std::endl;
+    readTest.close();
+
 }
 
 // Move this to main
