@@ -9,8 +9,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-//debug
-#include <typeinfo>
 
 class User
 {
