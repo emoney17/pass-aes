@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <ostream>
 #include <string>
 
 class User
@@ -48,15 +49,15 @@ void genKey()
     prng.GenerateBlock(key, key.size());
     prng.GenerateBlock(iv, iv.size());
 
-    // std::cout << "key: ";
-    // encoder.Put(key, key.size());
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
-    //
-    // std::cout << "iv: ";
-    // encoder.Put(iv, iv.size());
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
+    std::cout << "key: ";
+    encoder.Put(key, key.size());
+    encoder.MessageEnd();
+    std::cout << std::endl;
+
+    std::cout << "iv: ";
+    encoder.Put(iv, iv.size());
+    encoder.MessageEnd();
+    std::cout << std::endl;
 
     /*********************************\
     \*********************************/
@@ -67,27 +68,19 @@ void genKey()
     encodeS.Attach(new StringSink(keyS));
     encodeS.Put(key.data(), key.size());
     encodeS.MessageEnd();
+    // std::cout << "Decoded string key: " << keyS << std::endl;
 
-    std::cout << "Decoded byte key: " << keyS << std::endl;
-
-    // Convert back to bytes COMPLETE!
-    std::string decoded;
-    HexDecoder decoder;
-    decoder.Put((byte*)keyS.data(), keyS.size());
-    decoder.MessageEnd();
-
-    word64 size = decoder.MaxRetrievable();
-    if(size && size <= SIZE_MAX)
-    {
-        decoded.resize(size);
-        decoder.Get((byte*)&decoded[0], decoded.size());
-    }
-    std::cout << "Encoded -> Decoded Key: " << decoded << std::endl;
+    // Convert string hex to byte COMPLETE!
+    // std::cout << "key raw: " << key.data() << std::endl;
+    std::string destination;
+    StringSource ss(keyS, true, new HexDecoder(new StringSink(destination)));
+    const byte* result = (const byte*) destination.data();
+    // std::cout << "Decoded byte key: " << result << std::endl;
 
     // Chec if can be written to file COMPLETE!
     std::ofstream testFile("./test/testFile");
     testFile << keyS << std::endl;
-    testFile << decoded << std::endl;
+    testFile << result << std::endl;
     testFile.close();
 
     // Check if can be read from a file COMPLETE!
@@ -95,8 +88,8 @@ void genKey()
     std::ifstream readTest("./test/testFile");
     std::getline(readTest, line1);
     std::getline(readTest, line2);
-    std::cout << "Line 1 from the file encoded: " << line1 << std::endl;
-    std::cout << "Line 2 from the file raw: " << line2 << std::endl;
+    // std::cout << "Line 1 from the file encoded: " << line1 << std::endl;
+    // std::cout << "Line 2 from the file raw: " << line2 << std::endl;
     readTest.close();
 
     // Testing encryption
@@ -109,7 +102,7 @@ void genKey()
     try
     {
         CBC_Mode< AES >::Encryption e;
-        e.SetKeyWithIV(key, key.size(), iv);
+        e.SetKeyWithIV(result, 16, iv);
 
         StringSource s(plain, true,
             new StreamTransformationFilter(e,
@@ -135,7 +128,7 @@ void genKey()
     try
     {
         CBC_Mode< AES >::Decryption d;
-        d.SetKeyWithIV(key, key.size(), iv);
+        d.SetKeyWithIV(result, 16, iv);
 
         StringSource s(cipher, true,
             new StreamTransformationFilter(d,
