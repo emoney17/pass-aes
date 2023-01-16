@@ -9,6 +9,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+//debug
+#include <typeinfo>
 
 class User
 {
@@ -18,6 +20,7 @@ class User
         std::string KeyFile;
 
     public:
+        // Constructor for user
         User(std::string password, std::string passfile, std::string keyfile)
         {
             Password = password;
@@ -25,6 +28,7 @@ class User
             KeyFile = keyfile;
         }
 
+        // Print info for debugging
         void printInfo()
         {
             std::cout << "Password: " << Password << std::endl;
@@ -33,6 +37,7 @@ class User
         }
 };
 
+// Function to generate a key along with iv
 void genKey()
 {
     CryptoPP::AutoSeededRandomPool prng;
@@ -54,28 +59,34 @@ void genKey()
     encoder.MessageEnd();
     std::cout << std::endl;
 
-    // std::string stringKey = std::string((const char*)key.data(), key.size());
-    // std::string stringIV = std::string((const char*)iv.data(), iv.size());
-    //
-    // // std::cout << "Converted to string: " << std::endl;
-    // // std::cout << stringKey << std::endl;
-    // // std::cout << stringIV << std::endl;
-    // // std::cout.flush();
-    //
-    // std::fstream testKey("./test/testKey", std::ios::out);
-    // if (!testKey.is_open())
-    // {
-    //     std::cout << "Error writing to file." << std::endl;
-    // }
-    // else
-    // {
-    //     testKey << stringKey;
-    //     testKey << std::endl;
-    //     testKey << stringIV;
-    //     testKey << std::endl;
-    // }
+    /*********************************\
+    \*********************************/
+
+    // Convert byte to string COMPLETE!
+    std::string keyS;
+    CryptoPP::HexEncoder encodeS;
+    encodeS.Attach(new CryptoPP::StringSink(keyS));
+    encodeS.Put(key.data(), key.size());
+    encodeS.MessageEnd();
+
+    std::cout << keyS << std::endl;
+
+    // Convert back to bytes COMPLETE!
+    std::string decoded;
+    CryptoPP::HexDecoder decoder;
+    decoder.Put((CryptoPP::byte*)keyS.data(), keyS.size());
+    decoder.MessageEnd();
+
+    CryptoPP::word64 size = decoder.MaxRetrievable();
+    if(size && size <= SIZE_MAX)
+    {
+        decoded.resize(size);
+        decoder.Get((CryptoPP::byte*)&decoded[0], decoded.size());
+    }
+    std::cout << "Encoded -> Decoded Key: " << decoded << std::endl;
 }
 
+// Move this to main
 void printMenu()
 {
     std::string menu = "___________________________________________\n"
@@ -90,6 +101,7 @@ void printMenu()
     std::cout << menu << std::endl;
 }
 
+// Move this to main
 void printDashboard()
 {
     std::string dashboard = "___________________________________________\n"
