@@ -66,8 +66,6 @@ void generateKeyFile()
 
 int encrypt(std::string keyFile)
 {
-    using namespace CryptoPP;
-
     // Read the bytes from the file to strings
     std::string keyFromFile, ivFromFile;
     std::ifstream readKeyFile(keyFile);
@@ -78,8 +76,8 @@ int encrypt(std::string keyFile)
     readKeyFile.close();
 
     //convert tokens read from the file to bytes
-    const byte* key = (const byte*) keyFromFile.data();
-    const byte* iv = (const byte*) ivFromFile.data();
+    const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
+    const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
 
     // test encryption
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
@@ -91,16 +89,16 @@ int encrypt(std::string keyFile)
 
     try
     {
-        CBC_Mode< AES >::Encryption e;
+        CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
         e.SetKeyWithIV(key, 16, iv);
 
-        StringSource s(plain, true,
-            new StreamTransformationFilter(e,
-                new StringSink(cipher)
+        CryptoPP::StringSource s(plain, true,
+            new CryptoPP::StreamTransformationFilter(e,
+                new CryptoPP::StringSink(cipher)
             ) // StreamTransformationFilter
         ); // StringSource
     }
-    catch(const Exception& e)
+    catch(const CryptoPP::Exception& e)
     {
         std::cerr << e.what() << std::endl;
         exit(1);
@@ -108,7 +106,7 @@ int encrypt(std::string keyFile)
 
     // Print out hexcode of encoded plain text
     std::cout << "cipher text: ";
-    encoder.Put((const byte*)&cipher[0], cipher.size());
+    encoder.Put((const CryptoPP::byte*)&cipher[0], cipher.size());
     encoder.MessageEnd();
     std::cout << std::endl;
 
@@ -117,22 +115,24 @@ int encrypt(std::string keyFile)
     // Recover the text
     try
     {
-        CBC_Mode< AES >::Decryption d;
+        CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
         d.SetKeyWithIV(key, 16, iv);
 
-        StringSource s(cipher, true,
-            new StreamTransformationFilter(d,
-                new StringSink(recovered)
+        CryptoPP::StringSource s(cipher, true,
+            new CryptoPP::StreamTransformationFilter(d,
+                new CryptoPP::StringSink(recovered)
             ) // StreamTransformationFilter
         ); // StringSource
 
         std::cout << "recovered text: " << recovered << std::endl;
     }
-    catch(const Exception& e)
+    catch(const CryptoPP::Exception& e)
     {
         std::cerr << e.what() << std::endl;
         exit(1);
     }
+
+    return 0;
 }
 
 void decrypt()
