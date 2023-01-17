@@ -5,6 +5,7 @@
 #include "osrng.h"
 #include "hex.h"
 
+#include <fstream>
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -36,7 +37,6 @@ class User
             std::cout << "Data File: " << PassFile << std::endl;
             std::cout << "Key File: " << KeyFile << std::endl;
         }
-
 };
 
 void generatePassFile(std::string password)
@@ -48,114 +48,91 @@ void generatePassFile(std::string password)
 
 void generateKeyFile()
 {
-    CryptoPP::AutoSeededRandomPool prng;
+    // CryptoPP::AutoSeededRandomPool prng;
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
-    CryptoPP::SecByteBlock key(CryptoPP::AES::DEFAULT_KEYLENGTH);
-    CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
+    CryptoPP::byte key[16];
+    CryptoPP::byte iv[16];
 
-    prng.GenerateBlock(key, key.size());
-    prng.GenerateBlock(iv, iv.size());
-
-    // std::cout << "key: ";
-    // encoder.Put(key, key.size());
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
-    //
-    // std::cout << "iv: ";
-    // encoder.Put(iv, iv.size());
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
-
-    std::cout << "Key: " << key.data() << std::endl;
-    // std::cout << "IV: " << iv.data() << std::endl;
-    // std::cout << "Both: " << key.data() << " " << iv.data() << std::endl;
+    CryptoPP::OS_GenerateRandomBlock(false, key, sizeof(key));
+    CryptoPP::OS_GenerateRandomBlock(false, iv, sizeof(iv));
 
     std::ofstream keyFile("./test/key");
-    keyFile << key.data() << iv.data();
+    keyFile << key;
+    keyFile << std::endl;
+    keyFile << iv;
     keyFile.close();
 }
 
 int encrypt(std::string keyFile)
 {
-    // Read key and iv from key file
-    std::ifstream readKey(keyFile, std::ios::binary);
-    if (!readKey.good())
+    using namespace CryptoPP;
+
+    // Read the bytes from the file to strings
+    std::string keyFromFile, ivFromFile;
+    std::ifstream readKeyFile(keyFile);
+    std::getline(readKeyFile, keyFromFile);
+    std::getline(readKeyFile, ivFromFile);
+    std::cout << "Key from file: " << keyFromFile << std::endl;
+    std::cout << "IV from file: " << ivFromFile << std::endl;
+    readKeyFile.close();
+
+    //convert tokens read from the file to bytes
+    const byte* key = (const byte*) keyFromFile.data();
+    const byte* iv = (const byte*) ivFromFile.data();
+
+    // test encryption
+    CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
+
+    std::string plain = "This is a cipher test.";
+    std::string cipher, recovered;
+
+    std::cout << "Plain text: " << plain << std::endl;
+
+    try
     {
-        std::cout << "Could not open " << keyFile << "." << std::endl;
-        return 0;
+        CBC_Mode< AES >::Encryption e;
+        e.SetKeyWithIV(key, 16, iv);
+
+        StringSource s(plain, true,
+            new StreamTransformationFilter(e,
+                new StringSink(cipher)
+            ) // StreamTransformationFilter
+        ); // StringSource
     }
-    else {
-        // try to read in the first 50 bytes (as characters)
-        const std::size_t nbytes = 16 ;
-        std::vector<char> buff(nbytes) ; // allocate a buffer of nbytes characters
-        if( readKey.read( buff.data(), buff.size() ) ) // try to read in nbytes
-        {
-            const auto nread = readKey.gcount() ; // number of bytes that were actually read
-
-            // from the characters that were read, initialise a vector of nbytes bytes
-            std::vector<CryptoPP::byte> key( buff.begin(), buff.begin() + nread ) ;
-
-            // print out the values of the bytes (two hex digits per byte)
-            std::cout << "the first " << nbytes << " bytes in the file '"
-                      << keyFile << "' are hex:\n" << std::setfill('0') ;
-            // for( CryptoPP::byte b : bytes ) std::cout << std::hex << std::setw(2) << int(b) << ' ' ;
-            for( CryptoPP::byte b : key ) std::cout << b << ' ' ;
-            std::cout << '\n' ;
-        }
+    catch(const Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
     }
-    readKey.close();
-    return 0;
 
-    // std::string plain = "This is a cipher test.";
-    // std::string cipher, recovered;
-    //
-    // std::cout << "Plain text: " << plain << std::endl;
-    //
-    // try
-    // {
-    //     CBC_Mode< AES >::Encryption e;
-    //     e.SetKeyWithIV(result, 16, iv);
-    //
-    //     StringSource s(plain, true,
-    //         new StreamTransformationFilter(e,
-    //             new StringSink(cipher)
-    //         ) // StreamTransformationFilter
-    //     ); // StringSource
-    // }
-    // catch(const Exception& e)
-    // {
-    //     std::cerr << e.what() << std::endl;
-    //     exit(1);
-    // }
-    //
-    // // Print out hexcode of encoded plain text
-    // std::cout << "cipher text: ";
-    // encoder.Put((const byte*)&cipher[0], cipher.size());
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
-    //
-    // std::cout << "cipher text raw: " << cipher << std::endl;
-    //
-    // // Recover the text
-    // try
-    // {
-    //     CBC_Mode< AES >::Decryption d;
-    //     d.SetKeyWithIV(result, 16, iv);
-    //
-    //     StringSource s(cipher, true,
-    //         new StreamTransformationFilter(d,
-    //             new StringSink(recovered)
-    //         ) // StreamTransformationFilter
-    //     ); // StringSource
-    //
-    //     std::cout << "recovered text: " << recovered << std::endl;
-    // }
-    // catch(const Exception& e)
-    // {
-    //     std::cerr << e.what() << std::endl;
-    //     exit(1);
-    // }
+    // Print out hexcode of encoded plain text
+    std::cout << "cipher text: ";
+    encoder.Put((const byte*)&cipher[0], cipher.size());
+    encoder.MessageEnd();
+    std::cout << std::endl;
+
+    std::cout << "cipher text raw: " << cipher << std::endl;
+
+    // Recover the text
+    try
+    {
+        CBC_Mode< AES >::Decryption d;
+        d.SetKeyWithIV(key, 16, iv);
+
+        StringSource s(cipher, true,
+            new StreamTransformationFilter(d,
+                new StringSink(recovered)
+            ) // StreamTransformationFilter
+        ); // StringSource
+
+        std::cout << "recovered text: " << recovered << std::endl;
+    }
+    catch(const Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
 }
 
 void decrypt()

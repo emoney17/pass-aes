@@ -1,20 +1,8 @@
-#!/usr/bin/make
-
-CC = g++
-SRC = src/*.cpp
-PROG = safe-pass.exe
-
-# Clean project and compile program
-build: clean $(PROG)
-
-# Clean project by removing executable
+all: clean
+	g++ src/*.cpp -I ./cryptopp ./cryptopp/libcryptopp.a -o safe-pass.exe
 clean:
-	rm -f $(PROG)
-
-# Clean project, compile program, and run executable
-run: build
-	 ./$(PROG)
-
-# Compile the program from latest soucrce
-$(PROG): $(SRC)
-	$(CC) $(SRC) -I ./cryptopp ./cryptopp/libcryptopp.a -o $(PROG)
+	rm -f safe-pass.exe
+	rm -f test/pass
+	rm -f test/test
+run: all
+	./safe-pass.exe
