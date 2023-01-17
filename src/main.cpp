@@ -10,10 +10,6 @@
 #include <ostream>
 #include <string>
 
-#include <vector>
-#include <cstdint>
-#include <iomanip>
-
 class User
 {
     private:
@@ -71,8 +67,8 @@ int encrypt(std::string keyFile)
     std::ifstream readKeyFile(keyFile);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
-    std::cout << "Key from file: " << keyFromFile << std::endl;
-    std::cout << "IV from file: " << ivFromFile << std::endl;
+    // std::cout << "Key from file: " << keyFromFile << std::endl;
+    // std::cout << "IV from file: " << ivFromFile << std::endl;
     readKeyFile.close();
 
     //convert tokens read from the file to bytes
@@ -139,116 +135,6 @@ void decrypt()
 {
 }
 
-// Function to generate a key along with iv
-// void genKey()
-// {
-//     using namespace CryptoPP;
-//
-//     AutoSeededRandomPool prng;
-//     HexEncoder encoder(new FileSink(std::cout));
-//
-//     SecByteBlock key(AES::DEFAULT_KEYLENGTH);
-//     SecByteBlock iv(AES::BLOCKSIZE);
-//
-//     prng.GenerateBlock(key, key.size());
-//     prng.GenerateBlock(iv, iv.size());
-//
-//     std::cout << "key: ";
-//     encoder.Put(key, key.size());
-//     encoder.MessageEnd();
-//     std::cout << std::endl;
-//
-//     std::cout << "iv: ";
-//     encoder.Put(iv, iv.size());
-//     encoder.MessageEnd();
-//     std::cout << std::endl;
-//
-//     /*********************************\
-//     \*********************************/
-//
-//     // Convert byte to string COMPLETE!
-//     std::string keyS;
-//     HexEncoder encodeS;
-//     encodeS.Attach(new StringSink(keyS));
-//     encodeS.Put(key.data(), key.size());
-//     encodeS.MessageEnd();
-//     // std::cout << "Decoded string key: " << keyS << std::endl;
-//
-//     // Convert string hex to byte COMPLETE!
-//     // std::cout << "key raw: " << key.data() << std::endl;
-//     std::string destination;
-//     StringSource ss(keyS, true, new HexDecoder(new StringSink(destination)));
-//     const byte* result = (const byte*) destination.data();
-//     // std::cout << "Decoded byte key: " << result << std::endl;
-//
-//     // Chec if can be written to file COMPLETE!
-//     std::ofstream testFile("./test/testFile");
-//     testFile << keyS << std::endl;
-//     testFile << result << std::endl;
-//     testFile.close();
-//
-//     // Check if can be read from a file COMPLETE!
-//     std::string line1, line2;
-//     std::ifstream readTest("./test/testFile");
-//     std::getline(readTest, line1);
-//     std::getline(readTest, line2);
-//     // std::cout << "Line 1 from the file encoded: " << line1 << std::endl;
-//     // std::cout << "Line 2 from the file raw: " << line2 << std::endl;
-//     readTest.close();
-//
-//     // Testing encryption
-//
-//     std::string plain = "This is a cipher test.";
-//     std::string cipher, recovered;
-//
-//     std::cout << "Plain text: " << plain << std::endl;
-//
-//     try
-//     {
-//         CBC_Mode< AES >::Encryption e;
-//         e.SetKeyWithIV(result, 16, iv);
-//
-//         StringSource s(plain, true,
-//             new StreamTransformationFilter(e,
-//                 new StringSink(cipher)
-//             ) // StreamTransformationFilter
-//         ); // StringSource
-//     }
-//     catch(const Exception& e)
-//     {
-//         std::cerr << e.what() << std::endl;
-//         exit(1);
-//     }
-//
-//     // Print out hexcode of encoded plain text
-//     std::cout << "cipher text: ";
-//     encoder.Put((const byte*)&cipher[0], cipher.size());
-//     encoder.MessageEnd();
-//     std::cout << std::endl;
-//
-//     std::cout << "cipher text raw: " << cipher << std::endl;
-//
-//     // Recover the text
-//     try
-//     {
-//         CBC_Mode< AES >::Decryption d;
-//         d.SetKeyWithIV(result, 16, iv);
-//
-//         StringSource s(cipher, true,
-//             new StreamTransformationFilter(d,
-//                 new StringSink(recovered)
-//             ) // StreamTransformationFilter
-//         ); // StringSource
-//
-//         std::cout << "recovered text: " << recovered << std::endl;
-//     }
-//     catch(const Exception& e)
-//     {
-//         std::cerr << e.what() << std::endl;
-//         exit(1);
-//     }
-// }
-
 // Move this to main
 void printMenu()
 {
@@ -309,10 +195,10 @@ int main (int argc, char *argv[])
         generateKeyFile();
         std::cout << "Key file generated!" << std::endl;
         generatePassFile(newUserPassword);
+        // encrypt("./test/pass");
         std::cout << "Pass file generated!" << std::endl;
         std::cout << "Necessary files created. \n"
-            "Please rename and save your pass file and key file somewhere safe!\n"
-            "Also remember your password for this program!" << std::endl;
+            "Please save your pass file and key file somewhere safe!" << std::endl;
         User newUser(newUserPassword, "./test/pass", "./test/key");
         newUser.printInfo();
     }
@@ -370,6 +256,6 @@ int main (int argc, char *argv[])
         }
     }
     else std::cout << "Invalid option selected, either type 'new' for new user"
-        "or just hit Enter to continue normally" << std::endl;
+        "or just hit Enter to continue normally." << std::endl;
     return 0;
 }
