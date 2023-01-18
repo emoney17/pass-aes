@@ -37,14 +37,65 @@ class User
 
 void generatePassFile(std::string password)
 {
+    // Read the bytes from the file to strings
+    std::string keyFromFile, ivFromFile, cipher, recovered;
+    std::ifstream readKeyFile("./test/key");
+    std::getline(readKeyFile, keyFromFile);
+    std::getline(readKeyFile, ivFromFile);
+    readKeyFile.close();
+
+    //convert tokens read from the file to bytes
+    const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
+    const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
+
+    // test encryption
+    CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
+
+    try
+    {
+        CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
+        e.SetKeyWithIV(key, 16, iv);
+
+        CryptoPP::StringSource s(password, true,
+        new CryptoPP::StreamTransformationFilter(e,
+        new CryptoPP::StringSink(cipher)
+            )
+        );
+    }
+    catch(const CryptoPP::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+    std::cout << "Cipher raw: " << cipher << std::endl;
+
     std::ofstream passFile("./test/pass");
-    passFile << password;
+    passFile << cipher;
     passFile.close();
+
+    try
+    {
+        CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
+        d.SetKeyWithIV(key, 16, iv);
+
+        CryptoPP::StringSource s(cipher, true,
+            new CryptoPP::StreamTransformationFilter(d,
+                new CryptoPP::StringSink(recovered)
+            ) // StreamTransformationFilter
+        ); // StringSource
+
+        std::cout << "recovered text: " << recovered << std::endl;
+    }
+    catch(const CryptoPP::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
 }
 
 void generateKeyFile()
 {
-    // CryptoPP::AutoSeededRandomPool prng;
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
     CryptoPP::byte key[16];
@@ -67,8 +118,6 @@ int encrypt(std::string keyFilePath, std::string passFilePath)
     std::ifstream readKeyFile(keyFilePath);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
-    // std::cout << "Key from file: " << keyFromFile << std::endl;
-    // std::cout << "IV from file: " << ivFromFile << std::endl;
     readKeyFile.close();
 
     //convert tokens read from the file to bytes
@@ -95,17 +144,16 @@ int encrypt(std::string keyFilePath, std::string passFilePath)
                 e.SetKeyWithIV(key, 16, iv);
 
                 CryptoPP::StringSource s(line, true,
-                    new CryptoPP::StreamTransformationFilter(e,
-                        new CryptoPP::StringSink(cipher)
-                    ) // StreamTransformationFilter
-                ); // StringSource
+                new CryptoPP::StreamTransformationFilter(e,
+                new CryptoPP::StringSink(cipher)
+                    )
+                );
             }
             catch(const CryptoPP::Exception& e)
             {
                 std::cerr << e.what() << std::endl;
                 exit(1);
             }
-            // std::cout << "Text from file raw: " << cipher << std::endl;
             writePassFile << cipher;
         }
     }
@@ -119,15 +167,13 @@ void decrypt(std::string keyFilePath, std::string passFilePath)
     std::ifstream readKeyFile(keyFilePath);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
-    // std::cout << "Key from file: " << keyFromFile << std::endl;
-    // std::cout << "IV from file: " << ivFromFile << std::endl;
     readKeyFile.close();
 
-    //convert tokens read from the file to bytes
+    // convert tokens read from the file to bytes
     const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
     const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
 
-    // test encryption
+    // test decryption
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
     std::string cipher, recovered;
@@ -144,11 +190,10 @@ void decrypt(std::string keyFilePath, std::string passFilePath)
                 d.SetKeyWithIV(key, 16, iv);
 
                 CryptoPP::StringSource s(cipher, true,
-                    new CryptoPP::StreamTransformationFilter(d,
-                        new CryptoPP::StringSink(recovered)
-                    ) // StreamTransformationFilter
-                ); // StringSource
-
+                new CryptoPP::StreamTransformationFilter(d,
+                new CryptoPP::StringSink(recovered)
+                    )
+                );
                 std::cout << "recovered text: " << recovered << std::endl;
             }
             catch(const CryptoPP::Exception& e)
@@ -175,22 +220,12 @@ void printMenu()
     std::cout << menu << std::endl;
 }
 
-// Move this to main
-void printDashboard()
-{
-    std::string dashboard = "___________________________________________\n"
-                           "|                                          |\n"
-                           "|      Unlocking password database...      |\n"
-                           "|__________________________________________|\n";
-    std::cout << dashboard << std::endl;
-}
-
 int main (int argc, char *argv[])
 {
     encrypt("./test/key", "./test/pass.bak");
     // decrypt("./test/key", "./test/passwrite.bak");
     std::string userStatus;
-    printDashboard();
+    std::cout << "UNLOCKING DATABASE..." << std::endl;
 
     // Check if new user or old user
     std::cout << "If this is your first time running please type 'new'\n"
