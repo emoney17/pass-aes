@@ -5,13 +5,6 @@
 #include "cryptopp/osrng.h"
 #include "cryptopp/hex.h"
 
-// #include "cryptlib.h"
-// #include "rijndael.h"
-// #include "modes.h"
-// #include "files.h"
-// #include "osrng.h"
-// #include "hex.h"
-
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -36,9 +29,11 @@ class User
         // Print info for debugging
         void printInfo()
         {
+            std::cout << std::endl;
             std::cout << "Password: " << Password << std::endl;
             std::cout << "Data File: " << PassFile << std::endl;
             std::cout << "Key File: " << KeyFile << std::endl;
+            std::cout << std::endl;
         }
 };
 
@@ -75,7 +70,7 @@ void generatePassFile(std::string password)
         exit(1);
     }
 
-    std::cout << "Cipher raw: " << cipher << std::endl;
+    // std::cout << "Cipher raw: " << cipher << std::endl;
 
     std::ofstream passFile("./test/pass");
     passFile << cipher;
@@ -212,25 +207,48 @@ void decrypt(std::string keyFilePath, std::string passFilePath)
     }
 }
 
-// Move this to main
-void printMenu()
+bool validateUserPass(std::string loginPass, std::string keyFilePath, std::string passFilePath)
 {
-    std::string menu = "___________________________________________\n"
-                      "|                                          |\n"
-                      "|          Entry to data GRANTED           |\n"
-                      "|         1. View all passwords            |\n"
-                      "|         2. Edit passwords                |\n"
-                      "|         3. Add a password                |\n"
-                      "|         4. Delete a password             |\n"
-                      "|         5. Quit                          |\n"
-                      "|__________________________________________|\n";
-    std::cout << menu << std::endl;
+    std::string keyFromFile, ivFromFile;
+    std::ifstream readKeyFile(keyFilePath);
+    std::getline(readKeyFile, keyFromFile);
+    std::getline(readKeyFile, ivFromFile);
+    readKeyFile.close();
+
+    // convert tokens read from the file to bytes
+    const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
+    const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
+
+    std::string encryptedPass, recoveredPass;
+    std::ifstream readPassFile(passFilePath);
+    if (!readPassFile.is_open()) std::cout << "Could not open " << passFilePath << "." << std::endl;
+    else
+    {
+        // read the first line of the pass file where the login password is stored
+        std::getline(readPassFile, encryptedPass);
+        try
+        {
+            CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
+            d.SetKeyWithIV(key, 16, iv);
+
+            CryptoPP::StringSource s(encryptedPass, true,
+            new CryptoPP::StreamTransformationFilter(d,
+            new CryptoPP::StringSink(recoveredPass)
+                )
+            );
+            std::cout << "recovered password: " << recoveredPass << std::endl;
+        }
+        catch(const CryptoPP::Exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+            exit(1);
+        }
+    }
+    return (loginPass == recoveredPass);
 }
 
 int main (int argc, char *argv[])
 {
-    encrypt("./test/key", "./test/pass.bak");
-    // decrypt("./test/key", "./test/passwrite.bak");
     std::string userStatus;
     std::cout << "UNLOCKING DATABASE..." << std::endl;
 
@@ -261,10 +279,8 @@ int main (int argc, char *argv[])
         generateKeyFile();
         std::cout << "Key file generated!" << std::endl;
         generatePassFile(newUserPassword);
-        // encrypt("./test/pass");
         std::cout << "Pass file generated!" << std::endl;
-        std::cout << "Necessary files created. \n"
-            "Please save your pass file and key file somewhere safe!" << std::endl;
+        std::cout << "Please save your pass file and key file somewhere safe!" << std::endl;
         User newUser(newUserPassword, "./test/pass", "./test/key");
         newUser.printInfo();
     }
@@ -277,19 +293,24 @@ int main (int argc, char *argv[])
 
         while (true)
         {
-            // Get user info and validate files exist
-            std::cout << "Enter password: " << std::endl;
-            std::cin >> loginPass;
-            std::cout << "Enter password data path: " << std::endl;
-            std::cin >> passPath;
-            std::cout << "Enter your encryption key here: " << std::endl;
-            std::cin >> keyPath;
+            while (true)
+            {
+                // Get user info and validate files exist
+                std::cout << "Enter password: " << std::endl;
+                std::cin >> loginPass;
+                std::cout << "Enter password data path: " << std::endl;
+                std::cin >> passPath;
+                std::cout << "Enter your encryption key here: " << std::endl;
+                std::cin >> keyPath;
 
-            std::ifstream validatePass(passPath);
-            std::ifstream validateKey(keyPath);
-            if (!validatePass.good()) std::cout << "Could not open " << passPath << "." << std::endl;
-            else if (!validateKey.good()) std::cout << "Could not open " << keyPath << "." << std::endl;
-            else break;
+                std::ifstream validatePass(passPath);
+                std::ifstream validateKey(keyPath);
+                if (!validatePass.good()) std::cout << "Could not open " << passPath << "." << std::endl;
+                else if (!validateKey.good()) std::cout << "Could not open " << keyPath << "." << std::endl;
+                else break;
+            }
+            if (validateUserPass(loginPass, keyPath, passPath) == true) break;
+            else std::cout << "The pass word for this data does not match." << std::endl;
         }
 
         User oldUser(loginPass, passPath, keyPath);
@@ -303,7 +324,7 @@ int main (int argc, char *argv[])
         // Entry has been granted to the user
         while (userChoice != 5)
         {
-            printMenu();
+            std::cout << "This is a menu 1. 2. 3. " << std::endl;
             std::cin >> userChoice;
             switch (userChoice)
             {
