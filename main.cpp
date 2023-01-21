@@ -400,10 +400,11 @@ int main (int argc, char *argv[])
         oldUser.printInfo();
 
         std::string entry;
-        std::cout << "Write some text: ";
-        // add new line to entry
-        std::getline(std::cin, entry);
-        entry.append("\n");
+        std::cout << "New Entry: ";
+        // flush cin buffer before getline
+        std::cin.ignore();
+        std::getline(std::cin, entry, '\n');
+        entry += "\n";
         add(entry);
         read();
         // Read password entry from password file and check if correct
