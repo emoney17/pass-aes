@@ -41,7 +41,7 @@ void generatePassFile(std::string password)
 {
     // Read the bytes from the file to strings
     std::string keyFromFile, ivFromFile, cipher, recovered;
-    std::ifstream readKeyFile("./test/key");
+    std::ifstream readKeyFile("./key", std::ios::binary);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
     readKeyFile.close();
@@ -72,7 +72,7 @@ void generatePassFile(std::string password)
 
     // std::cout << "Cipher raw: " << cipher << std::endl;
 
-    std::ofstream passFile("./test/pass");
+    std::ofstream passFile("./pass");
     passFile << cipher;
     passFile.close();
 
@@ -106,7 +106,7 @@ void generateKeyFile()
     CryptoPP::OS_GenerateRandomBlock(false, key, sizeof(key));
     CryptoPP::OS_GenerateRandomBlock(false, iv, sizeof(iv));
 
-    std::ofstream keyFile("./test/key");
+    std::ofstream keyFile("./key");
     keyFile << key;
     keyFile << std::endl;
     keyFile << iv;
@@ -117,7 +117,7 @@ int encrypt(std::string keyFilePath, std::string passFilePath)
 {
     // Read the bytes from the file to strings
     std::string keyFromFile, ivFromFile;
-    std::ifstream readKeyFile(keyFilePath);
+    std::ifstream readKeyFile(keyFilePath, std::ios::binary);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
     readKeyFile.close();
@@ -166,7 +166,7 @@ void decrypt(std::string keyFilePath, std::string passFilePath)
 {
     // read key and iv from key file
     std::string keyFromFile, ivFromFile;
-    std::ifstream readKeyFile(keyFilePath);
+    std::ifstream readKeyFile(keyFilePath, std::ios::binary);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
     readKeyFile.close();
@@ -179,7 +179,7 @@ void decrypt(std::string keyFilePath, std::string passFilePath)
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
     std::string cipher, recovered;
-    std::ifstream readPassFile(passFilePath);
+    std::ifstream readPassFile(passFilePath, std::ios::binary);
     if (!readPassFile.is_open()) std::cout << "Could not open " << passFilePath << "." << std::endl;
     else
     {
@@ -210,7 +210,7 @@ void decrypt(std::string keyFilePath, std::string passFilePath)
 bool validateUserPass(std::string loginPass, std::string keyFilePath, std::string passFilePath)
 {
     std::string keyFromFile, ivFromFile;
-    std::ifstream readKeyFile(keyFilePath);
+    std::ifstream readKeyFile(keyFilePath, std::ios::binary);
     std::getline(readKeyFile, keyFromFile);
     std::getline(readKeyFile, ivFromFile);
     readKeyFile.close();
@@ -247,6 +247,89 @@ bool validateUserPass(std::string loginPass, std::string keyFilePath, std::strin
     return (loginPass == recoveredPass);
 }
 
+void add(std::string entry)
+{
+    std::string keyFromFile, ivFromFile, cipher;
+    std::ifstream readKeyFile("./key", std::ios::binary);
+    std::getline(readKeyFile, keyFromFile);
+    std::getline(readKeyFile, ivFromFile);
+    readKeyFile.close();
+
+    //convert tokens read from the file to bytes
+    const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
+    const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
+
+    // test encryption
+    try
+    {
+        CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
+        e.SetKeyWithIV(key, 16, iv);
+
+        CryptoPP::StringSource s(entry, true,
+        new CryptoPP::StreamTransformationFilter(e,
+        new CryptoPP::StringSink(cipher)
+            )
+        );
+    }
+    catch(const CryptoPP::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+    // std::cout << "Cipher raw: " << cipher << std::endl;
+
+    std::ofstream passFile("./pass", std::ios::app);
+    passFile << std::endl;
+    passFile << cipher;
+    passFile.close();
+
+}
+
+void read()
+{
+    std::string keyFromFile, ivFromFile;
+    std::ifstream readKeyFile("./key", std::ios::binary);
+    std::getline(readKeyFile, keyFromFile);
+    std::getline(readKeyFile, ivFromFile);
+    readKeyFile.close();
+
+    // convert tokens read from the file to bytes
+    const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
+    const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
+
+    std::string encryptedEntry, recoveredPass, empty;
+    std::ifstream readPassFile("./pass", std::ios::binary);
+    if (!readPassFile.is_open()) std::cout << "Could not open ./pass." << std::endl;
+    else
+    {
+        // read the first line of the pass file where the login password is stored
+        std::getline(readPassFile, empty);
+        while (std::getline(readPassFile, encryptedEntry))
+        {
+            try
+            {
+                CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
+                d.SetKeyWithIV(key, 16, iv);
+
+                CryptoPP::StringSource s(encryptedEntry, true,
+                new CryptoPP::StreamTransformationFilter(d,
+                new CryptoPP::StringSink(recoveredPass)
+                    )
+                );
+                // std::cout << "recovered entry: " << recoveredPass << std::endl;
+            }
+            catch(const CryptoPP::Exception& e)
+            {
+                std::cerr << e.what() << std::endl;
+                exit(1);
+            }
+
+        }
+        std::cout << "Recovered entry: " << recoveredPass << std::endl;
+    }
+}
+
 int main (int argc, char *argv[])
 {
     std::string userStatus;
@@ -281,7 +364,7 @@ int main (int argc, char *argv[])
         generatePassFile(newUserPassword);
         std::cout << "Pass file generated!" << std::endl;
         std::cout << "Please save your pass file and key file somewhere safe!" << std::endl;
-        User newUser(newUserPassword, "./test/pass", "./test/key");
+        User newUser(newUserPassword, "pass", "key");
         newUser.printInfo();
     }
 
@@ -316,31 +399,38 @@ int main (int argc, char *argv[])
         User oldUser(loginPass, passPath, keyPath);
         oldUser.printInfo();
 
+        std::string entry;
+        std::cout << "Write some text: ";
+        // add new line to entry
+        std::getline(std::cin, entry);
+        entry.append("\n");
+        add(entry);
+        read();
         // Read password entry from password file and check if correct
         // Decrypt the pass file with the users key file
         // Check if the password is correct
         // if not re-enter user information
 
         // Entry has been granted to the user
-        while (userChoice != 5)
-        {
-            std::cout << "This is a menu 1. 2. 3. " << std::endl;
-            std::cin >> userChoice;
-            switch (userChoice)
-            {
-                case 1: std::cout << "Viewing all stored passwords\n";
-                     break;
-                case 2: std::cout << "Editing existing passwords\n";
-                    break;
-                case 3: std::cout << "Adding a new password\n";
-                    break;
-                case 4: std::cout << "Deleting an existing password\n";
-                    break;
-                case 5: std::cout << "Qitting the program..." << std::endl;
-                    break;
-                default: std::cout << "Please enter a valid option from the menu." << std::endl;
-            }
-        }
+        // while (userChoice != 5)
+        // {
+        //     std::cout << "This is a menu 1. 2. 3. " << std::endl;
+        //     std::cin >> userChoice;
+        //     switch (userChoice)
+        //     {
+        //         case 1: std::cout << "Viewing all stored passwords\n";
+        //              break;
+        //         case 2: std::cout << "Editing existing passwords\n";
+        //             break;
+        //         case 3: std::cout << "Adding a new password\n";
+        //             break;
+        //         case 4: std::cout << "Deleting an existing password\n";
+        //             break;
+        //         case 5: std::cout << "Qitting the program..." << std::endl;
+        //             break;
+        //         default: std::cout << "Please enter a valid option from the menu." << std::endl;
+        //     }
+        // }
     }
     else std::cout << "Invalid option selected, either type 'new' for new user"
         "or just hit Enter to continue normally." << std::endl;
