@@ -1,5 +1,5 @@
 all:
-	g++ user.cpp -I ./cryptopp ./cryptopp/libcryptopp.a -o safe-pass.exe
+	g++ user.cpp -Wall -I ./cryptopp ./cryptopp/libcryptopp.a -o safe-pass.exe
 clean:
 	rm -f safe-pass.exe
 	rm -f pass

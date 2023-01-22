@@ -12,7 +12,6 @@
 
 CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
-
 void readKeyFile(std::string keyFilePath, std::string* keyFromFile, std::string* ivFromFile)
 {
     // Read first 16 bytes and save to string then skip the first and read the second 16 etc.
@@ -21,9 +20,10 @@ void readKeyFile(std::string keyFilePath, std::string* keyFromFile, std::string*
     readKeyFile.Pump(16);
     *keyFromFile = data;
     data.clear();
-    readKeyFile.Skip(16);
-    readKeyFile.Pump(16);
+    std::cout << "Key from file: " << *keyFromFile << std::endl;
+    readKeyFile.PumpAll();
     *ivFromFile = data;
+    std::cout << "IV from file: " << *ivFromFile << std::endl;
 }
 
 
@@ -56,11 +56,10 @@ class User
             const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
 
             // Read first 16 bytes of pass file where password is located
-            CryptoPP::FileSource readPassFile(PassPath.c_str(), false,
-                    new CryptoPP::StringSink(encryptedPassword));
-            readPassFile.Pump(16);
+            CryptoPP::FileSource readPassFile(PassPath.c_str(), true, new CryptoPP::StringSink(encryptedPassword));
+            // readPassFile.Pump(16);
             std::cout << "From Filesource: " << encryptedPassword << std::endl;
-
+            std::cout << "Size of filesource password: " << encryptedPassword.size() << std::endl;
             try
             {
                 CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
@@ -139,23 +138,12 @@ std::string generateNewUser()
     CryptoPP::OS_GenerateRandomBlock(false, iv, sizeof(iv));
 
     // Test writing to file using StringSource
-    // CryptoPP::StringSource writeKey(key, 16, true, new CryptoPP::FileSink("key"));
-    // CryptoPP::StringSource writeIV(iv, 16, true, new CryptoPP::FileSink("key"));
+    // CryptoPP::StringSource keyFile(key, 16, true, new CryptoPP::FileSink("key"));
+    // CryptoPP::StringSource ivFile(iv, 16, true, new CryptoPP::FileSink("key"));
 
-    std::ofstream keyFile("key", std::ios::app);
-    keyFile << key;
-    keyFile << iv;
+    std::ofstream keyFile("key", std::ios::binary);
+    keyFile << key << iv;
     keyFile.close();
-
-    // std::cout << "Encoded key: ";
-    // encoder.Put(key, 16);
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
-    //
-    // std::cout << "Encoded iv: ";
-    // encoder.Put(iv, 16);
-    // encoder.MessageEnd();
-    // std::cout << std::endl;
 
     // Generate pass file for the new user using their password
     try
@@ -176,6 +164,7 @@ std::string generateNewUser()
     }
 
     std::cout << "Password raw: " << newUserPasswordEncrypted << std::endl;
+    std::cout << "Size of password raw: " << newUserPasswordEncrypted.size() << std::endl;
 
     // Write the encrypted password to the file using StringSource
     // CryptoPP::StringSource writePassword(newUserPasswordEncrypted, true, new CryptoPP::FileSink("pass"));
@@ -212,13 +201,13 @@ int main()
 {
     // This is for when generating a new user
     std::string password = generateNewUser();
-    std::cout << "New user info:\n"
-        "Password: " << password << "\n"
-        "Pass File: pass\n"
-        "Key File: key\n";
+    // std::cout << "New user info:\n"
+    //     "Password: " << password << "\n"
+    //     "Pass File: pass\n"
+    //     "Key File: key\n";
     //
     User user("123", "pass", "key");
-    user.printInfo();
+    // user.printInfo();
     std::cout << user.validateUser() << std::endl;
     // user.add();
 }
