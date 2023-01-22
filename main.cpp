@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <ostream>
+#include <sstream>
 #include <string>
 
 class User
@@ -286,6 +287,9 @@ void add(std::string entry)
 
 }
 
+// Make it return a string of the entries so that the delete function can split the string
+// and select which one to delete.
+// maybe make the whole add function a vector anyway
 void read()
 {
     std::string keyFromFile, ivFromFile;
@@ -328,6 +332,19 @@ void read()
         }
         std::cout << "Recovered entry: " << recoveredPass << std::endl;
     }
+}
+
+void remove(std::string entry)
+{
+    std::istringstream entryString(entry);
+    std::string splitEntry;
+    std::vector<std::string> allEntries;
+    while (std::getline(entryString,splitEntry,'\n'))
+    {
+        std::cout << splitEntry << std::endl;
+        allEntries.push_back(splitEntry);
+    }
+
 }
 
 int main (int argc, char *argv[])
