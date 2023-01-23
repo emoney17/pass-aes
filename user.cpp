@@ -12,6 +12,7 @@
 
 CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
+// When debugging uncomment the couts here just in case
 void readKeyFile(std::string keyFilePath, std::string* keyFromFile, std::string* ivFromFile)
 {
     // Read first 16 bytes and save to string then skip the first and read the second 16 etc.
@@ -20,10 +21,10 @@ void readKeyFile(std::string keyFilePath, std::string* keyFromFile, std::string*
     readKeyFile.Pump(16);
     *keyFromFile = data;
     data.clear();
-    std::cout << "Key from file: " << *keyFromFile << std::endl;
+    // std::cout << "Key from file: " << *keyFromFile << std::endl;
     readKeyFile.PumpAll();
     *ivFromFile = data;
-    std::cout << "IV from file: " << *ivFromFile << std::endl;
+    // std::cout << "IV from file: " << *ivFromFile << std::endl;
 }
 
 
@@ -58,8 +59,15 @@ class User
             // Read first 16 bytes of pass file where password is located
             CryptoPP::FileSource readPassFile(PassPath.c_str(), true, new CryptoPP::StringSink(encryptedPassword));
             // readPassFile.Pump(16);
-            std::cout << "From Filesource: " << encryptedPassword << std::endl;
+            // std::cout << "From Filesource: " << encryptedPassword << std::endl;
+
+            std::cout << "Raw: ";
+            encoder.Put((const CryptoPP::byte*)&encryptedPassword[0], encryptedPassword.size());
+            encoder.MessageEnd();
+            std::cout << std::endl;
+
             std::cout << "Size of filesource password: " << encryptedPassword.size() << std::endl;
+
             try
             {
                 CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
@@ -91,7 +99,8 @@ class User
 
             std::cout << "Entry: ";
             std::getline(std::cin, entry);
-            // std::cout << "You are adding " << entry << " to the pass file." << std::endl;
+            std::cout << "You are adding " << entry << " to the pass file." << std::endl;
+
             try
             {
                 CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
@@ -109,6 +118,8 @@ class User
                 exit(1);
             }
 
+            // TODO: Add the entry as the next 16 bytes of the pass file
+
         }
 };
 
@@ -119,9 +130,11 @@ std::string generateNewUser()
     while (true)
     {
         std::cout << "Please enter a password: ";
-        std::cin >> newUserPassword;
+        std::getline(std::cin, newUserPassword);
+        // std::cin >> newUserPassword;
         std::cout << "Re-enter your password: ";
-        std::cin >> newUserPasswordCheck;
+        std::getline(std::cin, newUserPasswordCheck);
+        // std::cin >> newUserPasswordCheck;
         if (newUserPassword == newUserPasswordCheck)
         {
             std::cout << "Password saved." << std::endl;
@@ -163,7 +176,12 @@ std::string generateNewUser()
         exit(1);
     }
 
-    std::cout << "Password raw: " << newUserPasswordEncrypted << std::endl;
+    std::cout << "Raw: ";
+    encoder.Put((const CryptoPP::byte*)&newUserPasswordEncrypted[0], newUserPasswordEncrypted.size());
+    encoder.MessageEnd();
+    std::cout << std::endl;
+
+    // std::cout << "Password raw: " << newUserPasswordEncrypted << std::endl;
     std::cout << "Size of password raw: " << newUserPasswordEncrypted.size() << std::endl;
 
     // Write the encrypted password to the file using StringSource
@@ -174,26 +192,26 @@ std::string generateNewUser()
     passFile << newUserPasswordEncrypted;
     passFile.close();
 
-    // Try and recover the password from the pass file
-    std::string recoveredPassword;
-    try
-    {
-        CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
-        d.SetKeyWithIV(key, 16, iv);
-
-        CryptoPP::StringSource s(newUserPasswordEncrypted, true,
-            new CryptoPP::StreamTransformationFilter(d,
-             new CryptoPP::StringSink(recoveredPassword)
-            )
-        );
-
-        std::cout << "Recovered password: " << recoveredPassword << std::endl;
-    }
-    catch(const CryptoPP::Exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        exit(1);
-    }
+    // // Try and recover the password from the pass file
+    // std::string recoveredPassword;
+    // try
+    // {
+    //     CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
+    //     d.SetKeyWithIV(key, 16, iv);
+    //
+    //     CryptoPP::StringSource s(newUserPasswordEncrypted, true,
+    //         new CryptoPP::StreamTransformationFilter(d,
+    //          new CryptoPP::StringSink(recoveredPassword)
+    //         )
+    //     );
+    //
+    //     // std::cout << "Recovered password: " << recoveredPassword << std::endl;
+    // }
+    // catch(const CryptoPP::Exception& e)
+    // {
+    //     std::cerr << e.what() << std::endl;
+    //     exit(1);
+    // }
     return newUserPassword;
 }
 
@@ -206,7 +224,7 @@ int main()
     //     "Pass File: pass\n"
     //     "Key File: key\n";
     //
-    User user("123", "pass", "key");
+    User user("123", "pass", "key"); // Set this after user enters flag for password and file paths
     // user.printInfo();
     std::cout << user.validateUser() << std::endl;
     // user.add();
