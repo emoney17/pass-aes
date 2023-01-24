@@ -1,172 +1,58 @@
-#include "cryptopp/cryptlib.h"
-#include "cryptopp/filters.h"
-#include "cryptopp/rijndael.h"
-#include "cryptopp/modes.h"
-#include "cryptopp/files.h"
-#include "cryptopp/osrng.h"
-#include "cryptopp/hex.h"
+#include "user.h"
 
-#include <fstream>
-#include <iostream>
-#include <string>
-
-CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
-
-// When debugging uncomment the couts here just in case
-void readKeyFile(std::string keyFilePath, std::string* keyFromFile, std::string* ivFromFile)
+User::User(std::string password, std::string passPath, std::string keyPath)
 {
-    // Read first 16 bytes and save to string then skip the first and read the second 16 etc.
+    Password = password;
+    PassPath = passPath;
+    KeyPath = keyPath;
+}
+
+void User::readKeyFile(std::string keyFilePath, std::string* keyFromFile, std::string* ivFromFile)
+{
     std::string data;
     CryptoPP::FileSource readKeyFile(keyFilePath.c_str(), false, new CryptoPP::StringSink(data));
     readKeyFile.Pump(16);
     *keyFromFile = data;
     data.clear();
-    // std::cout << "Key from file: " << *keyFromFile << std::endl;
     readKeyFile.PumpAll();
     *ivFromFile = data;
-    // std::cout << "IV from file: " << *ivFromFile << std::endl;
 }
 
-
-class User
+void User::printInfo()
 {
-    private:
-        std::string Password;
-        std::string PassPath;
-        std::string KeyPath;
-    public:
-        User(std::string password, std::string passPath, std::string keyPath)
-        {
-            Password = password;
-            PassPath = passPath;
-            KeyPath = keyPath;
-        }
+    std::cout << "User password: " << Password << std::endl;
+    std::cout << "User Pass location: " << PassPath << std::endl;
+    std::cout << "User Key location: " << KeyPath << std::endl;
+}
 
-        void printInfo()
-        {
-            std::cout << "User password: " << Password << std::endl;
-            std::cout << "User Pass location: " << PassPath << std::endl;
-            std::cout << "User Key location: " << KeyPath << std::endl;
-        }
-
-        bool validateUser() // Function to check if users password is the same as the pass files
-        {
-            std::string keyFromFile, ivFromFile, encryptedPassword, recoveredPassword;
-            readKeyFile(KeyPath, &keyFromFile, &ivFromFile);
-            const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
-            const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
-
-            // Read first 16 bytes of pass file where password is located
-            CryptoPP::FileSource readPassFile(PassPath.c_str(), true, new CryptoPP::StringSink(encryptedPassword));
-            // readPassFile.Pump(16);
-            // std::cout << "From Filesource: " << encryptedPassword << std::endl;
-
-            std::cout << "Raw: ";
-            encoder.Put((const CryptoPP::byte*)&encryptedPassword[0], encryptedPassword.size());
-            encoder.MessageEnd();
-            std::cout << std::endl;
-
-            std::cout << "Size of filesource password: " << encryptedPassword.size() << std::endl;
-
-            try
-            {
-                CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
-                d.SetKeyWithIV(key, 16, iv);
-
-                CryptoPP::StringSource s(encryptedPassword, true,
-                    new CryptoPP::StreamTransformationFilter(d,
-                     new CryptoPP::StringSink(recoveredPassword)
-                    )
-                );
-
-                std::cout << "Recovered password: " << recoveredPassword << std::endl;
-            }
-            catch(const CryptoPP::Exception& e)
-            {
-                std::cerr << e.what() << std::endl;
-                exit(1);
-            }
-
-            return (Password == recoveredPassword);
-        }
-
-        void add() // Function to add an entry to the pass file
-        {
-            std::string entry,entryEncrypted, keyFromFile, ivFromFile;
-            readKeyFile(KeyPath, &keyFromFile, &ivFromFile);
-            const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
-            const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
-
-            std::cout << "Entry: ";
-            std::getline(std::cin, entry);
-            std::cout << "You are adding " << entry << " to the pass file." << std::endl;
-
-            try
-            {
-                CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
-                e.SetKeyWithIV(key, 16, iv);
-
-                CryptoPP::StringSource s(entry, true,
-                new CryptoPP::StreamTransformationFilter(e,
-                new CryptoPP::StringSink(entryEncrypted)
-                    )
-                );
-            }
-            catch(const CryptoPP::Exception& e)
-            {
-                std::cerr << e.what() << std::endl;
-                exit(1);
-            }
-
-            // TODO: Add the entry as the next 16 bytes of the pass file
-
-        }
-};
-
-std::string generateNewUser()
+bool User::validateUser()
 {
-    std::string newUserPassword, newUserPasswordCheck, newUserPasswordEncrypted;
-    // Get a password from the new user
-    while (true)
-    {
-        std::cout << "Please enter a password: ";
-        std::getline(std::cin, newUserPassword);
-        // std::cin >> newUserPassword;
-        std::cout << "Re-enter your password: ";
-        std::getline(std::cin, newUserPasswordCheck);
-        // std::cin >> newUserPasswordCheck;
-        if (newUserPassword == newUserPasswordCheck)
-        {
-            std::cout << "Password saved." << std::endl;
-            break;
-        }
-        else std::cout << "The passwords do not match." << std::endl;
-    }
+    CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
-    // Generate key file for the new user
-    CryptoPP::byte key[16];
-    CryptoPP::byte iv[16];
+    std::string keyFromFile, ivFromFile, encryptedPassword, recoveredPassword;
+    readKeyFile(KeyPath, &keyFromFile, &ivFromFile);
+    const CryptoPP::byte* key = (const CryptoPP::byte*) keyFromFile.data();
+    const CryptoPP::byte* iv = (const CryptoPP::byte*) ivFromFile.data();
 
-    CryptoPP::OS_GenerateRandomBlock(false, key, sizeof(key));
-    CryptoPP::OS_GenerateRandomBlock(false, iv, sizeof(iv));
+    CryptoPP::FileSource readPassFile(PassPath.c_str(), false,
+            new CryptoPP::StringSink(encryptedPassword));
+    readPassFile.Pump(16);
 
-    // Test writing to file using StringSource
-    // CryptoPP::StringSource keyFile(key, 16, true, new CryptoPP::FileSink("key"));
-    // CryptoPP::StringSource ivFile(iv, 16, true, new CryptoPP::FileSink("key"));
+    // std::cout << "Raw: ";
+    // encoder.Put((const CryptoPP::byte*)&encryptedPassword[0], encryptedPassword.size());
+    // encoder.MessageEnd();
+    // std::cout << std::endl;
 
-    std::ofstream keyFile("key", std::ios::binary);
-    keyFile << key << iv;
-    keyFile.close();
+    // std::cout << "Size of filesource password: " << encryptedPassword.size() << std::endl;
 
-    // Generate pass file for the new user using their password
     try
     {
-        CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
-        e.SetKeyWithIV(key, 16, iv);
+        CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
+        d.SetKeyWithIV(key, 16, iv);
 
-        CryptoPP::StringSource s(newUserPassword, true,
-        new CryptoPP::StreamTransformationFilter(e,
-        new CryptoPP::StringSink(newUserPasswordEncrypted)
+        CryptoPP::StringSource s(encryptedPassword, true,
+            new CryptoPP::StreamTransformationFilter(d,
+             new CryptoPP::StringSink(recoveredPassword)
             )
         );
     }
@@ -176,56 +62,19 @@ std::string generateNewUser()
         exit(1);
     }
 
-    std::cout << "Raw: ";
-    encoder.Put((const CryptoPP::byte*)&newUserPasswordEncrypted[0], newUserPasswordEncrypted.size());
-    encoder.MessageEnd();
-    std::cout << std::endl;
-
-    // std::cout << "Password raw: " << newUserPasswordEncrypted << std::endl;
-    std::cout << "Size of password raw: " << newUserPasswordEncrypted.size() << std::endl;
-
-    // Write the encrypted password to the file using StringSource
-    // CryptoPP::StringSource writePassword(newUserPasswordEncrypted, true, new CryptoPP::FileSink("pass"));
-
-    // Write the encrypted password to the file normally
-    std::ofstream passFile("pass", std::ios::binary);
-    passFile << newUserPasswordEncrypted;
-    passFile.close();
-
-    // // Try and recover the password from the pass file
-    // std::string recoveredPassword;
-    // try
-    // {
-    //     CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption d;
-    //     d.SetKeyWithIV(key, 16, iv);
-    //
-    //     CryptoPP::StringSource s(newUserPasswordEncrypted, true,
-    //         new CryptoPP::StreamTransformationFilter(d,
-    //          new CryptoPP::StringSink(recoveredPassword)
-    //         )
-    //     );
-    //
-    //     // std::cout << "Recovered password: " << recoveredPassword << std::endl;
-    // }
-    // catch(const CryptoPP::Exception& e)
-    // {
-    //     std::cerr << e.what() << std::endl;
-    //     exit(1);
-    // }
-    return newUserPassword;
+    // std::cout << "Recovered password: " << recoveredPassword << std::endl;
+    return (Password == recoveredPassword);
 }
-
-int main()
-{
-    // This is for when generating a new user
-    std::string password = generateNewUser();
-    // std::cout << "New user info:\n"
-    //     "Password: " << password << "\n"
-    //     "Pass File: pass\n"
-    //     "Key File: key\n";
-    //
-    User user("123", "pass", "key"); // Set this after user enters flag for password and file paths
-    // user.printInfo();
-    std::cout << user.validateUser() << std::endl;
-    // user.add();
-}
+// int main()
+// {
+//     // This is for when generating a new user
+//     std::string password = generateNewUser();
+//     // std::cout << "New user info:\n"
+//     //     "Password: " << password << "\n"
+//     //     "Pass File: pass\n"
+//     //     "Key File: key\n";
+//     //
+//     User user("123", "pass", "key"); // Set this after user enters flag for password and file paths
+//     user.printInfo();
+//     std::cout << user.validateUser() << std::endl;
+// }
