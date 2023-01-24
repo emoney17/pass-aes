@@ -4,5 +4,5 @@ clean:
 	rm -f safe-pass.exe
 	rm -f pass
 	rm -f key
-run: build
-	./safe-pass.exe
+# run: clean build
+# 	./safe-pass.exe
