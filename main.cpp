@@ -1,5 +1,8 @@
 #include "CLI11.hpp"
-#include "gen.h"
+#include "init.hpp"
+#include "gen.hpp"
+
+#include <algorithm>
 #include <iostream>
 #include <filesystem>
 
@@ -8,16 +11,16 @@ int main (int argc, char *argv[])
     CLI::App app{"App description"};
 
     bool initArg{false};
-    bool passwordArg{false};
+    bool symbolsArg{false};
+    int generateArg {30};
     std::string insertArg = "NULL";
     std::string removeArg = "NULL";
 
     app.add_flag("-i,--init", initArg, "Initialize and generate basic files");
-    app.add_flag("-g,--generate", passwordArg, "Aenerate a password for an entry");
+    app.add_option("-g,--generate", generateArg, "Generate a password for an entry");
+    app.add_flag("-s,--nosymbols", symbolsArg, "No symbols on generated password");
     app.add_option("-a,--add", insertArg, "Add a new Subject/Entry");
     app.add_option("-r,--remove", removeArg, "Remove a Subjecy/Entry");
-
-
 
     CLI11_PARSE(app, argc, argv);
 
@@ -28,12 +31,23 @@ int main (int argc, char *argv[])
     }
     if (insertArg != "NULL")
     {
-        if (passwordArg)
+        if (generateArg != 30)
         {
-            //generatePassword();
-            std::cout << "Generating password...\n";
+            if (symbolsArg) {
+                genPasswordNoSymbol(generateArg);
+                std::cout << "Generated password no symbols\n";
+            }
+            else
+            {
+                genPasswordFull(generateArg);
+                std::cout << "Generated password[size]\n";
+            }
         }
-        std::cout << "you will insert: " << insertArg << std::endl;
+        else
+        {
+            genPasswordNoSymbol(generateArg);
+            std::cout << "Generated password[30]\n";
+        }
     }
     if (removeArg != "NULL")
     {
