@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/emoney/Code/safepass",
+  "command": "/usr/bin/c++  -I/home/emoney/Code/safepass/include -g -std=gnu++17 -o CMakeFiles/safepass.dir/src/main.cpp.o -c /home/emoney/Code/safepass/src/main.cpp",
+  "file": "/home/emoney/Code/safepass/src/main.cpp"
+}
+]

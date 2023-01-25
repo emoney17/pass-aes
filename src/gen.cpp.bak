@@ -22,11 +22,13 @@ int main (int argc, char *argv[])
     CryptoPP::byte iv[CryptoPP::AES::DEFAULT_KEYLENGTH];
     rng.GenerateBlock(iv, CryptoPP::AES::BLOCKSIZE);
 
+    // Encoded key
     std::cout << "Key: ";
     encoder.Put(key, sizeof(key));
     encoder.MessageEnd();
     std::cout << std::endl;
 
+    // Encoded iv
     std::cout << "Iv: ";
     encoder.Put(iv, sizeof(iv));
     encoder.MessageEnd();
@@ -52,11 +54,13 @@ int main (int argc, char *argv[])
             new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,
                 sizeof(recovered_iv)));
 
+    // Encoded key recovered
     std::cout << "Recovered Key: ";
     encoder.Put(recovered_key, sizeof(recovered_key));
     encoder.MessageEnd();
     std::cout << std::endl;
 
+    // Encoded iv recovered
     std::cout << "Recovered Iv: ";
     encoder.Put(recovered_iv, sizeof(recovered_iv));
     encoder.MessageEnd();

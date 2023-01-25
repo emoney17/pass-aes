@@ -1,0 +1,8 @@
+no need for user password
+prepend data file with iv
+key file only has key
+presume the program is being run in the same dir where the key is locate
+store the data directory file somewhere like cache and hard code the path
+data is stored like Subject/Entry
+Subeject is its own directory and each entry + password is an encrypted file
+every time you add a new entry specify the Subject so that it goes to that directory

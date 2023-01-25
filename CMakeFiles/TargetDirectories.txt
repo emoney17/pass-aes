@@ -1,0 +1,3 @@
+/home/emoney/Code/safepass/CMakeFiles/safepass.dir
+/home/emoney/Code/safepass/CMakeFiles/edit_cache.dir
+/home/emoney/Code/safepass/CMakeFiles/rebuild_cache.dir
