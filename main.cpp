@@ -2,6 +2,7 @@
 #include "init.hpp"
 #include "gen.hpp"
 #include "parse.hpp"
+#include "encode.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -59,34 +60,38 @@ int main (int argc, char *argv[])
             if (symbolsArg) {
                 password = genPasswordNoSymbol(generateArg);
                 for (auto i:password) passwordString.push_back(i);
-                std::cout << passwordString << std::endl;
-                std::cout << "Password size: " <<  passwordString.size() << std::endl;
+                std::cout << "Password: " << passwordString << std::endl;
+                entry << encode(passwordString);
                 entry.close();
+                decode(filepath);
             }
             else
             {
                 password = genPasswordFull(generateArg);
                 for (auto i:password) passwordString.push_back(i);
-                std::cout << passwordString << std::endl;
-                std::cout << "Password size: " <<  passwordString.size() << std::endl;
+                std::cout << "Password: " << passwordString << std::endl;
+                entry << encode(passwordString);
                 entry.close();
+                decode(filepath);
             }
         }
         else if (symbolsArg)
         {
             password = genPasswordNoSymbol(30);
             for (auto i:password) passwordString.push_back(i);
-            std::cout << passwordString << std::endl;
-            std::cout << "Password size: " <<  passwordString.size() << std::endl;
+            std::cout << "Password: " << passwordString << std::endl;
+            entry << encode(passwordString);
             entry.close();
+            decode(filepath);
         }
         else
         {
             password = genPasswordFull(30);
             for (auto i:password) passwordString.push_back(i);
-            std::cout << passwordString << std::endl;
-            std::cout << "Password size: " <<  passwordString.size() << std::endl;
+            std::cout << "Password: " << passwordString << std::endl;
+            entry << encode(passwordString);
             entry.close();
+            decode(filepath);
         }
     }
 

@@ -26,12 +26,12 @@ void generateFiles()
     // std::cout << std::endl;
 
     // Byte for recovered key
-    CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
-    CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
+    // CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
+    // CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
 
     // Write key to key.aes file
     CryptoPP::ArraySource key_source((CryptoPP::byte*)&key, sizeof(key), true,
-            new CryptoPP::FileSink("./temp/key.aes"));
+            new CryptoPP::FileSink("./temp/.key.aes"));
     // Recover key from key.aes file. Put into recovered
     // CryptoPP::FileSource key_file_source("./temp/key.aes", true,
     //         new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_key,
@@ -39,7 +39,7 @@ void generateFiles()
 
     // Write data to data.aes file
     CryptoPP::ArraySource data_source((CryptoPP::byte*)&iv, sizeof(iv), true,
-            new CryptoPP::FileSink("./temp/data.aes"));
+            new CryptoPP::FileSink("./temp/.iv.aes"));
     // Recover data from data.aes file. Put into recovered
     // CryptoPP::FileSource data_file_source("./temp/data.aes", true,
     //         new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,
