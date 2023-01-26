@@ -39,6 +39,8 @@ int main (int argc, char *argv[])
 
     CLI11_PARSE(app, argc, argv);
 
+    // TODO: Make option for decoding and viewing entries
+
     if (initArg)
     {
         std::filesystem::create_directories("temp");
@@ -54,6 +56,8 @@ int main (int argc, char *argv[])
         filepath.append("/");
         filepath.append(path[1]);
         std::ofstream entry(filepath);
+
+        // TODO: Fix passwords not being proper length
 
         if (generateArg != 0)
         {
@@ -94,6 +98,8 @@ int main (int argc, char *argv[])
             decode(filepath);
         }
     }
+
+    // TODO: Finish removeArg flag
 
     if (removeArg != "NULL")
     {
