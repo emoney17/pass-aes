@@ -1,3 +1,6 @@
+#ifndef INIT_HPP
+#define INIT_HPP
+
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/filters.h"
 #include "cryptopp/rijndael.h"
@@ -8,3 +11,5 @@
 #include <iostream>
 
 void generateFiles();
+
+#endif // !INIT_HPP

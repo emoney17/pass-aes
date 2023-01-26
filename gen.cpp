@@ -1,5 +1,4 @@
 #include "gen.hpp"
-#include <iostream>
 
 std::vector<char> genPasswordFull(int length)
 {
@@ -19,12 +18,12 @@ std::vector<char> genPasswordFull(int length)
                 break;
         }
     }
-    for (auto i:password) std::cout << i;
-    std::cout << std::endl;
+    // for (auto i:password) std::cout << i;
+    // std::cout << std::endl;
     return password;
 }
 
-std::vector<char> genPasswordNoSymbol(int length = 30)
+std::vector<char> genPasswordNoSymbol(int length)
 {
     srand(time(0));
     std::vector<char> password;
@@ -40,7 +39,7 @@ std::vector<char> genPasswordNoSymbol(int length = 30)
                 break;
         }
     }
-    for (auto i:password) std::cout << i;
-    std::cout << std::endl;
+    // for (auto i:password) std::cout << i;
+    // std::cout << std::endl;
     return password;
 }
