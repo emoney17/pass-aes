@@ -8,18 +8,16 @@ std::vector<char> genPasswordFull(int length)
     {
         int index = rand() % 4;
         switch (index) {
-            case 0: password.push_back(UPPERCASE[(rand()%sizeof(UPPERCASE))]);
+            case 0: password.push_back(UPPERCASE[(rand()%(sizeof(UPPERCASE)))]);
                 break;
-            case 1: password.push_back(LOWERCASE[(rand()%sizeof(LOWERCASE))]);
+            case 1: password.push_back(LOWERCASE[(rand()%(sizeof(LOWERCASE)))]);
                 break;
-            case 2: password.push_back(SYMBOLS[(rand()%sizeof(SYMBOLS))]);
+            case 2: password.push_back(SYMBOLS[(rand()%(sizeof(SYMBOLS)))]);
                 break;
-            case 3: char c = (rand()%9)+'0'; password.push_back(c);
+            case 3: password.push_back(NUMBERS[(rand()%(sizeof(NUMBERS)))]);
                 break;
         }
     }
-    // for (auto i:password) std::cout << i;
-    // std::cout << std::endl;
     return password;
 }
 
@@ -31,15 +29,13 @@ std::vector<char> genPasswordNoSymbol(int length)
     {
         int index = rand() % 3;
         switch (index) {
-            case 0: password.push_back(UPPERCASE[(rand()%sizeof(UPPERCASE))]);
+            case 0: password.push_back(UPPERCASE[(rand()%(sizeof(UPPERCASE)))]);
                 break;
-            case 1: password.push_back(LOWERCASE[(rand()%sizeof(LOWERCASE))]);
+            case 1: password.push_back(LOWERCASE[(rand()%(sizeof(LOWERCASE)))]);
                 break;
-            case 2: char c = (rand()%9)+'0'; password.push_back(c);
+            case 2: password.push_back(NUMBERS[(rand()%(sizeof(NUMBERS)))]);
                 break;
         }
     }
-    // for (auto i:password) std::cout << i;
-    // std::cout << std::endl;
     return password;
 }

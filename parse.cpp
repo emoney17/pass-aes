@@ -1,6 +1,4 @@
-#include <iostream>
-#include <string>
-#include <vector>
+#include "parse.hpp"
 
 std::vector<std::string> parse (std::string s)
 {

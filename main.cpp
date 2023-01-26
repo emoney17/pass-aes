@@ -14,8 +14,10 @@ int main (int argc, char *argv[])
     CLI::App app{"App description"};
 
     std::vector<char> password;
+    std::string passwordString = "";
     std::vector<std::string> path;
-    std::string directory = "temp/";
+    std::string directorypath = "temp/";
+    std::string filepath = "temp/";
 
     bool initArg{false};
     bool symbolsArg{false};
@@ -45,39 +47,46 @@ int main (int argc, char *argv[])
     if (addArg != "NULL")
     {
         path = parse(addArg);
-        std::cout << "Path size: " << path.size() << std::endl;
-        for (auto j:path) std::cout << j << std::endl;
-        directory.append(path[0]);
-        std::filesystem::create_directories(directory);
-        // std::cout << directory << std::endl;
-        // CHANGE THE PATH TO BE IN TEMP
-        std::cout << "filename: " << path[1] << std::endl;
-        std::ofstream entry(path[1]);
-        if (entry.is_open())
-        {
-            entry << "Test";
-            entry.close();
-        }
-        else std::cout << "Failed to open " << path[1] << std::endl;
+        directorypath.append(path[0]);
+        std::filesystem::create_directories(directorypath);
+        filepath.append(path[0]);
+        filepath.append("/");
+        filepath.append(path[1]);
+        std::ofstream entry(filepath);
+
         if (generateArg != 0)
         {
             if (symbolsArg) {
                 password = genPasswordNoSymbol(generateArg);
-                for (auto i:password) entry << i;
-                // std::cout << std::endl << password.size() << std::endl;
+                for (auto i:password) passwordString.push_back(i);
+                std::cout << passwordString << std::endl;
+                std::cout << "Password size: " <<  passwordString.size() << std::endl;
+                entry.close();
             }
             else
             {
                 password = genPasswordFull(generateArg);
-                for (auto i:password) entry << i;
-                // std::cout << std::endl << password.size() << std::endl;
+                for (auto i:password) passwordString.push_back(i);
+                std::cout << passwordString << std::endl;
+                std::cout << "Password size: " <<  passwordString.size() << std::endl;
+                entry.close();
             }
+        }
+        else if (symbolsArg)
+        {
+            password = genPasswordNoSymbol(30);
+            for (auto i:password) passwordString.push_back(i);
+            std::cout << passwordString << std::endl;
+            std::cout << "Password size: " <<  passwordString.size() << std::endl;
+            entry.close();
         }
         else
         {
             password = genPasswordFull(30);
-            for (auto i:password) entry << i;
-            // std::cout << std::endl << password.size() << std::endl;
+            for (auto i:password) passwordString.push_back(i);
+            std::cout << passwordString << std::endl;
+            std::cout << "Password size: " <<  passwordString.size() << std::endl;
+            entry.close();
         }
     }
 

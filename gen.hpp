@@ -7,6 +7,7 @@
 
 const char UPPERCASE[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
 const char LOWERCASE[] = {"abcdefghijklmnopqrstuvwxyz"};
+const char NUMBERS[] = {"0123456789"};
 const char SYMBOLS[] = {"[]{}()*&^%$#@!~"};
 
 std::vector<char> genPasswordFull(int length);
