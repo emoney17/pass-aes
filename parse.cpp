@@ -4,16 +4,15 @@
 
 std::vector<std::string> parse (std::string s)
 {
-    std::vector<std::string> result;
-    size_t pos = 0;
+    size_t pos_start = 0, pos_end;
     std::string token;
-    std::string delimiter = "/";
-    while ((pos = s.find(delimiter)) != std::string::npos) {
-        token = s.substr(0, pos);
-        std::cout << token << std::endl;
-        s.erase(0, pos + delimiter.length());
+    std::vector<std::string> res;
+
+    while ((pos_end = s.find ("/", pos_start)) != std::string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + 1;
+        res.push_back (token);
     }
-    result.push_back(s);
-    // for (auto i:result) std::cout << i << std::endl;
-    return result;
+    res.push_back (s.substr (pos_start));
+    return res;
 }
