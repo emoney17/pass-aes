@@ -29,5 +29,5 @@ void Tree::walk(std::string directory, std::string prefix) {
 }
 
 void Tree::summary() {
-  std::cout << "\n" << dirs << " directories," << " " << files << " files" << std::endl;
+  std::cout << "\n" << dirs << " subjects," << " " << files << " entries" << std::endl;
 }
