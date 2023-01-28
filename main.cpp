@@ -6,9 +6,20 @@
 #include "tree.hpp"
 
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
+
+void writePassword(std::vector<char> password, std::ofstream& entry)
+{
+    std::string passwordString;
+    for (auto i:password) passwordString.push_back(i);
+    std::cout << "Password: " << passwordString << std::endl;
+    entry << encode(passwordString);
+    entry.close();
+}
 
 int main (int argc, char *argv[])
 {
@@ -18,8 +29,8 @@ int main (int argc, char *argv[])
     std::vector<char> password;
     std::string passwordString = "";
     std::vector<std::string> path;
-    std::string directorypath = "./temp/";
-    std::string filepath = "./temp/";
+    std::string directorypath = "temp/";
+    std::string filepath = "temp/";
     std::string directory, file;
 
     bool initArg{false};
@@ -40,7 +51,7 @@ int main (int argc, char *argv[])
     app.add_option("-a,--add", addArg,
             "Add a new entry with the format 'Subject/Entry'");
     app.add_option("-r,--remove", removeArg,
-            "Remove an entry with the format 'Subject/Entry'");
+            "Remove a 'Subject/' or a 'Subject/Entry'");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -71,43 +82,36 @@ int main (int argc, char *argv[])
         {
             if (symbolsArg) {
                 password = genPasswordNoSymbol(generateArg);
-                for (auto i:password) passwordString.push_back(i);
-                std::cout << "Password: " << passwordString << std::endl;
-                entry << encode(passwordString);
-                entry.close();
+                writePassword(password, entry);
                 decode(filepath);
             }
             else
             {
                 password = genPasswordFull(generateArg);
-                for (auto i:password) passwordString.push_back(i);
-                std::cout << "Password: " << passwordString << std::endl;
-                entry << encode(passwordString);
-                entry.close();
+                writePassword(password, entry);
                 decode(filepath);
             }
         }
         else if (symbolsArg)
         {
             password = genPasswordNoSymbol(30);
-            for (auto i:password) passwordString.push_back(i);
-            std::cout << "Password: " << passwordString << std::endl;
-            entry << encode(passwordString);
-            entry.close();
+            writePassword(password, entry);
             decode(filepath);
         }
         else
         {
             password = genPasswordFull(30);
-            for (auto i:password) passwordString.push_back(i);
-            std::cout << "Password: " << passwordString << std::endl;
-            entry << encode(passwordString);
-            entry.close();
+            writePassword(password, entry);
             decode(filepath);
         }
     }
 
-    // TODO: Finish removeArg flag
-    if (removeArg != "NULL") std::cout << "you will remove: " << removeArg << std::endl;
+    // TODO: Check if the directory or file even exists first
+    if (removeArg != "NULL")
+    {
+        directorypath.append(removeArg);
+        std::filesystem::remove_all(directorypath);
+        std::cout << "Removed: " << directorypath << std::endl;
+    }
     return 0;
 }

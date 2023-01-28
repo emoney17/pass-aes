@@ -8,15 +8,24 @@ std::string encode(std::string password)
     CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
     CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
 
-    // Recover key from key.aes file. Put into recovered
-    CryptoPP::FileSource keySource("./temp/.key.aes", true,
-            new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_key,
-                sizeof(recovered_key)));
+    try
+    {
+        // Recover key from key.aes file. Put into recovered
+        CryptoPP::FileSource keySource("./temp/.key.aes", true,
+                new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_key,
+                    sizeof(recovered_key)));
 
-    // Recover data from data.aes file. Put into recovered
-    CryptoPP::FileSource ivSource("./temp/.iv.aes", true,
-            new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,
-                sizeof(recovered_iv)));
+        // Recover data from data.aes file. Put into recovered
+        CryptoPP::FileSource ivSource("./temp/.iv.aes", true,
+                new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,
+                    sizeof(recovered_iv)));
+    }
+    catch(const CryptoPP::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
 
     // Use the keys to encrypt the password and write it to the file
     try
@@ -51,20 +60,27 @@ void decode(std::string path)
     CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
     CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
 
-    // Recover key from key.aes file. Put into recovered
-    CryptoPP::FileSource keySource("./temp/.key.aes", true,
-            new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_key,
-                sizeof(recovered_key)));
+    try
+    {
+        // Recover key from key.aes file. Put into recovered
+        CryptoPP::FileSource keySource("./temp/.key.aes", true,
+                new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_key,
+                    sizeof(recovered_key)));
 
-    // Recover data from data.aes file. Put into recovered
-    CryptoPP::FileSource ivSource("./temp/.iv.aes", true,
-            new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,
-                sizeof(recovered_iv)));
+        // Recover data from data.aes file. Put into recovered
+        CryptoPP::FileSource ivSource("./temp/.iv.aes", true,
+                new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,
+                    sizeof(recovered_iv)));
 
-    // Recover the encrypted password from the file
-    CryptoPP::FileSource passwordSource(path.c_str(), true,
-            new CryptoPP::StringSink(encodedPassword));
-
+        // Recover the encrypted password from the file
+        CryptoPP::FileSource passwordSource(path.c_str(), true,
+                new CryptoPP::StringSink(encodedPassword));
+    }
+    catch(CryptoPP::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
     // Use the keys to decrypt the password on the file
     try
     {
