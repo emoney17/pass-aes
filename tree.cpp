@@ -31,14 +31,3 @@ void Tree::walk(std::string directory, std::string prefix) {
 void Tree::summary() {
   std::cout << "\n" << dirs << " directories," << " " << files << " files" << std::endl;
 }
-
-// int main(int argc, char *argv[]) {
-//   Tree tree;
-//   string directory = argc == 1 ? "." : argv[1];
-//
-//   std::cout << directory << std::endl;
-//   tree.walk(directory, "");
-//   tree.summary();
-//
-//   return 0;
-// }
