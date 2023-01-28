@@ -5,12 +5,10 @@
 #include "encode.hpp"
 #include "tree.hpp"
 
-#include <algorithm>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
+#include <fstream>
 
 void writePassword(std::vector<char> password, std::ofstream& entry)
 {
@@ -27,7 +25,7 @@ int main (int argc, char *argv[])
 
     Tree tree;
     std::vector<char> password;
-    std::string passwordString = "";
+    std::string passwordString, encodedPassword;
     std::vector<std::string> path;
     std::string directorypath = "temp/";
     std::string filepath = "temp/";
@@ -40,18 +38,12 @@ int main (int argc, char *argv[])
     std::string addArg = "NULL";
     std::string removeArg = "NULL";
 
-    app.add_flag("-i,--init", initArg,
-            "First time users generate necessary files");
-    app.add_option("-v,--view", viewArg,
-            "View all entries with 'all' or a specific entry with 'Subject/Entry'");
-    app.add_option("-g,--generate", generateArg,
-            "Generate a password for an entry and pick the length size");
-    app.add_flag("-s,--nosymbols", symbolsArg,
-            "Generate a password with out special characters");
-    app.add_option("-a,--add", addArg,
-            "Add a new entry with the format 'Subject/Entry'");
-    app.add_option("-r,--remove", removeArg,
-            "Remove a 'Subject/' or a 'Subject/Entry'");
+    app.add_flag("-i,--init", initArg, "First time users generate necessary files");
+    app.add_option("-v,--view", viewArg, "View all entries with 'all' or a specific entry with 'Subject/Entry'");
+    app.add_option("-g,--generate", generateArg, "Generate a password when adding an entry and pick the length");
+    app.add_flag("-s,--nosymbols", symbolsArg, "Generate a password with out special characters");
+    app.add_option("-a,--add", addArg, "Add a new entry with the format 'Subject/Entry' and enter a password");
+    app.add_option("-r,--remove", removeArg, "Remove a 'Subject/' or a 'Subject/Entry'");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -92,16 +84,26 @@ int main (int argc, char *argv[])
                 decode(filepath);
             }
         }
-        else if (symbolsArg)
-        {
-            password = genPasswordNoSymbol(30);
-            writePassword(password, entry);
-            decode(filepath);
-        }
+        // else if (symbolsArg)
+        // {
+        //     password = genPasswordNoSymbol(30);
+        //     writePassword(password, entry);
+        //     decode(filepath);
+        // }
+        // else
+        // {
+        //     password = genPasswordFull(30);
+        //     writePassword(password, entry);
+        //     decode(filepath);
+        // }
+        // Let user manualy enter a password
         else
         {
-            password = genPasswordFull(30);
-            writePassword(password, entry);
+            std::cout << "Enter password for this entry: ";
+            std::getline(std::cin, passwordString);
+            std::cout << "Password: " << passwordString << std::endl;
+            entry << encode(passwordString);
+            entry.close();
             decode(filepath);
         }
     }
