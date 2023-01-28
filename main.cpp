@@ -3,6 +3,7 @@
 #include "gen.hpp"
 #include "parse.hpp"
 #include "encode.hpp"
+#include "tree.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -14,6 +15,7 @@ int main (int argc, char *argv[])
 {
     CLI::App app{"App description"};
 
+    Tree tree;
     std::vector<char> password;
     std::string passwordString = "";
     std::vector<std::string> path;
@@ -23,11 +25,14 @@ int main (int argc, char *argv[])
     bool initArg{false};
     bool symbolsArg{false};
     int generateArg = 0;
+    std::string viewArg = "NULL";
     std::string addArg = "NULL";
     std::string removeArg = "NULL";
 
     app.add_flag("-i,--init", initArg,
             "First time users generate necessary files");
+    app.add_option("-v,--view", viewArg,
+            "View all entries with 'all' or a specific entry with 'Subject/Entry'");
     app.add_option("-g,--generate", generateArg,
             "Generate a password for an entry and pick the length size");
     app.add_flag("-s,--nosymbols", symbolsArg,
@@ -45,6 +50,18 @@ int main (int argc, char *argv[])
     {
         std::filesystem::create_directories("temp");
         generateFiles();
+    }
+
+    if (viewArg == "all")
+    {
+        std::cout << "temp" << std::endl;
+        tree.walk("temp", " ");
+        tree.summary();
+    }
+    else if (viewArg != "NULL")
+    {
+        filepath.append(viewArg);
+        decode(filepath);
     }
 
     if (addArg != "NULL")
