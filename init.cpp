@@ -1,13 +1,11 @@
 #include "init.hpp"
 void generateFiles()
 {
-    // Generate the temp file
-    std::filesystem::create_directories("temp");
-
     // Random byte generator
     CryptoPP::AutoSeededRandomPool rng;
+
     // Hex encoder
-    // CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
+    CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
     // Generate key and iv
     CryptoPP::byte key[CryptoPP::AES::DEFAULT_KEYLENGTH];
@@ -15,7 +13,7 @@ void generateFiles()
     CryptoPP::byte iv[CryptoPP::AES::BLOCKSIZE];
     rng.GenerateBlock(iv, CryptoPP::AES::BLOCKSIZE);
 
-    // // Encoded key
+    // Encoded key
     // std::cout << "Key: ";
     // encoder.Put(key, sizeof(key));
     // encoder.MessageEnd();
@@ -26,14 +24,14 @@ void generateFiles()
     // encoder.Put(iv, sizeof(iv));
     // encoder.MessageEnd();
     // std::cout << std::endl;
-    //
-    // // Byte for recovered key
+
+    // Byte for recovered key
     // CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
     // CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
 
     // Write key to key.aes file
     CryptoPP::ArraySource key_source((CryptoPP::byte*)&key, sizeof(key), true,
-            new CryptoPP::FileSink("temp/key.aes"));
+            new CryptoPP::FileSink("./temp/.key.aes"));
     // Recover key from key.aes file. Put into recovered
     // CryptoPP::FileSource key_file_source("./temp/key.aes", true,
     //         new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_key,
@@ -41,7 +39,7 @@ void generateFiles()
 
     // Write data to data.aes file
     CryptoPP::ArraySource data_source((CryptoPP::byte*)&iv, sizeof(iv), true,
-            new CryptoPP::FileSink("temp/iv.aes"));
+            new CryptoPP::FileSink("./temp/.iv.aes"));
     // Recover data from data.aes file. Put into recovered
     // CryptoPP::FileSource data_file_source("./temp/data.aes", true,
     //         new CryptoPP::ArraySink((CryptoPP::byte*)&recovered_iv,

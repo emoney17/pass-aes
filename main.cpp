@@ -3,19 +3,20 @@
 #include "gen.hpp"
 #include "parse.hpp"
 #include "encode.hpp"
-#include "tree.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <string>
 
 int main (int argc, char *argv[])
 {
     CLI::App app{"App description"};
 
     std::vector<char> password;
-    std::string passwordString;
-    std::vector<std::string> vec;
+    std::string passwordString = "";
+    std::vector<std::string> path;
     std::string directorypath = "temp/";
     std::string filepath = "temp/";
 
@@ -24,10 +25,7 @@ int main (int argc, char *argv[])
     int generateArg = 0;
     std::string addArg = "NULL";
     std::string removeArg = "NULL";
-    std::string viewArg = "NULL";
 
-    app.add_option("-v,--view", viewArg,
-            "Enter Subject/Entry to see specific password or enter 'all' to view full list");
     app.add_flag("-i,--init", initArg,
             "First time users generate necessary files");
     app.add_option("-g,--generate", generateArg,
@@ -37,33 +35,26 @@ int main (int argc, char *argv[])
     app.add_option("-a,--add", addArg,
             "Add a new entry with the format 'Subject/Entry'");
     app.add_option("-r,--remove", removeArg,
-            "Remove a Subject or Entry with the format 'Subject/Entry'");
+            "Remove an entry with the format 'Subject/Entry'");
 
     CLI11_PARSE(app, argc, argv);
 
+    // TODO: Make option for decoding and viewing entries
+
     if (initArg)
     {
+        std::filesystem::create_directories("temp");
         generateFiles();
-    }
-
-    if (viewArg == "all")
-    {
-        tree("temp");
-    }
-    else
-    {
-        filepath.append(viewArg);
-        decode(filepath);
     }
 
     if (addArg != "NULL")
     {
-        vec = parse(addArg);
-        directorypath.append(vec[0]);
+        path = parse(addArg);
+        directorypath.append(path[0]);
         std::filesystem::create_directories(directorypath);
-        filepath.append(vec[0]);
+        filepath.append(path[0]);
         filepath.append("/");
-        filepath.append(vec[1]);
+        filepath.append(path[1]);
         std::ofstream entry(filepath);
 
         // TODO: Fix passwords not being proper length
@@ -74,18 +65,18 @@ int main (int argc, char *argv[])
                 password = genPasswordNoSymbol(generateArg);
                 for (auto i:password) passwordString.push_back(i);
                 std::cout << "Password: " << passwordString << std::endl;
-                // entry << encode(passwordString);
+                entry << encode(passwordString);
                 entry.close();
-                // decode(filepath);
+                decode(filepath);
             }
             else
             {
                 password = genPasswordFull(generateArg);
                 for (auto i:password) passwordString.push_back(i);
                 std::cout << "Password: " << passwordString << std::endl;
-                // entry << encode(passwordString);
+                entry << encode(passwordString);
                 entry.close();
-                // decode(filepath);
+                decode(filepath);
             }
         }
         else if (symbolsArg)
@@ -93,27 +84,26 @@ int main (int argc, char *argv[])
             password = genPasswordNoSymbol(30);
             for (auto i:password) passwordString.push_back(i);
             std::cout << "Password: " << passwordString << std::endl;
-            // entry << encode(passwordString);
+            entry << encode(passwordString);
             entry.close();
-            // decode(filepath);
+            decode(filepath);
         }
         else
         {
             password = genPasswordFull(30);
             for (auto i:password) passwordString.push_back(i);
             std::cout << "Password: " << passwordString << std::endl;
-            // entry << encode(passwordString);
+            entry << encode(passwordString);
             entry.close();
-            // decode(filepath);
+            decode(filepath);
         }
     }
 
+    // TODO: Finish removeArg flag
+
     if (removeArg != "NULL")
     {
-        filepath.append(removeArg);
-        std::cout << filepath << std::endl;
-        std::filesystem::remove_all(filepath);
-        std::cout << "Entry " << filepath << " deleted" << std::endl;
+        std::cout << "you will remove: " << removeArg << std::endl;
     }
     return 0;
 }
