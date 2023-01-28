@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
 #include <string>
 
 int main (int argc, char *argv[])
@@ -48,7 +47,6 @@ int main (int argc, char *argv[])
 
     if (initArg)
     {
-        std::filesystem::create_directories("temp");
         generateFiles();
     }
 

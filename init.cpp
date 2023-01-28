@@ -7,6 +7,8 @@ void generateFiles()
     // Hex encoder
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
 
+    // Generate temp
+    std::filesystem::create_directories("temp");
     // Generate key and iv
     CryptoPP::byte key[CryptoPP::AES::DEFAULT_KEYLENGTH];
     rng.GenerateBlock(key, CryptoPP::AES::DEFAULT_KEYLENGTH);
