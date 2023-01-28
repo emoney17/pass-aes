@@ -8,6 +8,7 @@
 #include "cryptopp/files.h"
 #include "cryptopp/osrng.h"
 #include "cryptopp/hex.h"
+#include <filesystem>
 #include <iostream>
 
 void generateFiles();
