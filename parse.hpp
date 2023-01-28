@@ -2,8 +2,9 @@
 #define  PARSE_HPP
 
 #include <iostream>
+#include <string>
 #include <vector>
 
-std::vector<std::string> parse (std::string s);
+void parse (std::string s, std::string* directory, std::string* file);
 
 #endif // !PARSE_HPP

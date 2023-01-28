@@ -1,6 +1,6 @@
 #include "parse.hpp"
 
-std::vector<std::string> parse (std::string s)
+void parse (std::string s, std::string* directory, std::string* file)
 {
     size_t pos_start = 0, pos_end;
     std::string token;
@@ -12,5 +12,6 @@ std::vector<std::string> parse (std::string s)
         res.push_back (token);
     }
     res.push_back (s.substr (pos_start));
-    return res;
+    *directory = res[0];
+    *file = res[1];
 }

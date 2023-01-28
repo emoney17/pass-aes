@@ -18,8 +18,9 @@ int main (int argc, char *argv[])
     std::vector<char> password;
     std::string passwordString = "";
     std::vector<std::string> path;
-    std::string directorypath = "temp/";
-    std::string filepath = "temp/";
+    std::string directorypath = "./temp/";
+    std::string filepath = "./temp/";
+    std::string directory, file;
 
     bool initArg{false};
     bool symbolsArg{false};
@@ -43,12 +44,7 @@ int main (int argc, char *argv[])
 
     CLI11_PARSE(app, argc, argv);
 
-    // TODO: Make option for decoding and viewing entries
-
-    if (initArg)
-    {
-        generateFiles();
-    }
+    if (initArg) generateFiles();
 
     if (viewArg == "all")
     {
@@ -64,16 +60,13 @@ int main (int argc, char *argv[])
 
     if (addArg != "NULL")
     {
-        path = parse(addArg);
-        directorypath.append(path[0]);
+        parse(addArg, &directory, &file);
+        directorypath.append(directory);
         std::filesystem::create_directories(directorypath);
-        filepath.append(path[0]);
-        filepath.append("/");
-        filepath.append(path[1]);
+        filepath.append(addArg);
         std::ofstream entry(filepath);
 
         // TODO: Fix passwords not being proper length
-
         if (generateArg != 0)
         {
             if (symbolsArg) {
@@ -115,10 +108,6 @@ int main (int argc, char *argv[])
     }
 
     // TODO: Finish removeArg flag
-
-    if (removeArg != "NULL")
-    {
-        std::cout << "you will remove: " << removeArg << std::endl;
-    }
+    if (removeArg != "NULL") std::cout << "you will remove: " << removeArg << std::endl;
     return 0;
 }
