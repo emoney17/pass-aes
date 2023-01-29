@@ -89,13 +89,11 @@ int main (int argc, char *argv[])
                 {
                     password = genPasswordNoSymbol(generateArg);
                     writePassword(password, entry);
-                    decode(filepath);
                 }
                 else
                 {
                     password = genPasswordFull(generateArg);
                     writePassword(password, entry);
-                    decode(filepath);
                 }
             }
             else
@@ -105,7 +103,6 @@ int main (int argc, char *argv[])
                 std::cout << "Password: " << passwordString << std::endl;
                 entry << encode(passwordString);
                 entry.close();
-                decode(filepath);
             }
         }
         else std::cout << "Wrong format" << std::endl;
