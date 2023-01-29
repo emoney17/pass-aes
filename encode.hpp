@@ -1,5 +1,5 @@
 #ifndef ENCODE_HPP
-#define  ENCODE_HPP
+#define ENCODE_HPP
 
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/filters.h"
