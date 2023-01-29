@@ -86,7 +86,7 @@ int main (int argc, char *argv[])
             {
                 parse(addArg, &directory, &file);
                 if (file.size() != 0)
-                    {
+                {
                     directorypath.append(directory);
                     std::filesystem::create_directories(directorypath);
                     filepath.append(addArg);
