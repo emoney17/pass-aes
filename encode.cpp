@@ -3,7 +3,6 @@
 std::string encode(std::string password)
 {
     std::string encodedPassword;
-
     CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
     CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
 
@@ -23,7 +22,6 @@ std::string encode(std::string password)
         exit(1);
     }
 
-
     try
     {
         CryptoPP::CBC_Mode< CryptoPP::AES >::Encryption e;
@@ -40,16 +38,12 @@ std::string encode(std::string password)
     }
     std::cout << "Encoded password: " << encodedPassword << std::endl;
 
-    CryptoPP::StringSource passwordSource(encodedPassword, true,
-            new CryptoPP::FileSink("test"));
-
     return encodedPassword;
 }
 
 void decode(std::string path)
 {
     std::string recoveredPassword, encodedPassword;
-
     CryptoPP::byte recovered_key[CryptoPP::AES::DEFAULT_KEYLENGTH];
     CryptoPP::byte recovered_iv[CryptoPP::AES::BLOCKSIZE];
 
