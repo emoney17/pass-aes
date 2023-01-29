@@ -11,22 +11,11 @@
 #include <string>
 #include <fstream>
 
-void writePassword(std::vector<char> password, std::ofstream& entry)
-{
-    std::string passwordString;
-    for (auto i:password) passwordString.push_back(i);
-    std::cout << "Password: " << passwordString << std::endl;
-    entry << encode(passwordString);
-    entry.close();
-}
-
 bool countDelimiter(std::string s)
 {
     int count = 0;
     for (int i = 0; i <s.size(); i++)
-    {
         if (s[i] == '/') count ++;
-    }
     return count == 1;
 }
 
@@ -35,7 +24,7 @@ int main (int argc, char *argv[])
     CLI::App app{"App description"};
 
     Tree tree;
-    std::vector<char> password;
+    std::string password;
     std::string passwordString, encodedPassword;
     std::vector<std::string> path;
     std::string directorypath = "temp/";
@@ -98,12 +87,14 @@ int main (int argc, char *argv[])
                         if (symbolsArg)
                         {
                             password = genPasswordNoSymbol(generateArg);
-                            writePassword(password, entry);
+                            entry << encode(password);
+                            entry.close();
                         }
                         else
                         {
                             password = genPasswordFull(generateArg);
-                            writePassword(password, entry);
+                            entry << encode(password);
+                            entry.close();
                         }
                     }
                     else

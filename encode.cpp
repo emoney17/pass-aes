@@ -36,7 +36,7 @@ std::string encode(std::string password)
         std::cerr << e.what() << std::endl;
         exit(1);
     }
-    std::cout << "Encoded password: " << encodedPassword << std::endl;
+    // std::cout << "Encoded password: " << encodedPassword << std::endl;
 
     return encodedPassword;
 }
