@@ -5,6 +5,7 @@
 #include "encode.hpp"
 #include "tree.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -112,8 +113,12 @@ int main (int argc, char *argv[])
     if (removeArg != "NULL")
     {
         directorypath.append(removeArg);
-        std::filesystem::remove_all(directorypath);
-        std::cout << "Removed: " << directorypath << std::endl;
+        if (std::filesystem::exists(directorypath))
+        {
+            std::filesystem::remove_all(directorypath);
+            std::cout << "Removed: " << directorypath << std::endl;
+        }
+        else std::cout << "Path does not exist" << std::endl;
     }
     return 0;
 }
