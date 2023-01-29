@@ -20,6 +20,16 @@ void writePassword(std::vector<char> password, std::ofstream& entry)
     entry.close();
 }
 
+bool countDelimiter(std::string s)
+{
+    int count = 0;
+    for (int i = 0; i <s.size(); i++)
+    {
+        if (s[i] == '/') count ++;
+    }
+    return count == 1;
+}
+
 int main (int argc, char *argv[])
 {
     CLI::App app{"App description"};
@@ -64,61 +74,58 @@ int main (int argc, char *argv[])
 
     if (addArg != "NULL")
     {
-        parse(addArg, &directory, &file);
-        directorypath.append(directory);
-        std::filesystem::create_directories(directorypath);
-        filepath.append(addArg);
-        std::ofstream entry(filepath);
-
-        // TODO: Fix passwords not being proper length
-        if (generateArg != 0)
+        if (countDelimiter(addArg))
         {
-            if (symbolsArg) {
-                password = genPasswordNoSymbol(generateArg);
-                writePassword(password, entry);
-                decode(filepath);
+            parse(addArg, &directory, &file);
+            directorypath.append(directory);
+            std::filesystem::create_directories(directorypath);
+            filepath.append(addArg);
+            std::ofstream entry(filepath);
+
+            // TODO: Fix passwords not being proper length
+            if (generateArg != 0)
+            {
+                if (symbolsArg)
+                {
+                    password = genPasswordNoSymbol(generateArg);
+                    writePassword(password, entry);
+                    decode(filepath);
+                }
+                else
+                {
+                    password = genPasswordFull(generateArg);
+                    writePassword(password, entry);
+                    decode(filepath);
+                }
             }
             else
             {
-                password = genPasswordFull(generateArg);
-                writePassword(password, entry);
+                std::cout << "Enter password for this entry: ";
+                std::getline(std::cin, passwordString);
+                std::cout << "Password: " << passwordString << std::endl;
+                entry << encode(passwordString);
+                entry.close();
                 decode(filepath);
             }
         }
-        // else if (symbolsArg)
-        // {
-        //     password = genPasswordNoSymbol(30);
-        //     writePassword(password, entry);
-        //     decode(filepath);
-        // }
-        // else
-        // {
-        //     password = genPasswordFull(30);
-        //     writePassword(password, entry);
-        //     decode(filepath);
-        // }
-        // Let user manualy enter a password
-        else
-        {
-            std::cout << "Enter password for this entry: ";
-            std::getline(std::cin, passwordString);
-            std::cout << "Password: " << passwordString << std::endl;
-            entry << encode(passwordString);
-            entry.close();
-            decode(filepath);
-        }
+        else std::cout << "Wrong format" << std::endl;
     }
 
-    // TODO: Check if the directory or file even exists first
     if (removeArg != "NULL")
     {
-        directorypath.append(removeArg);
-        if (std::filesystem::exists(directorypath))
+        if (countDelimiter(removeArg))
         {
-            std::filesystem::remove_all(directorypath);
-            std::cout << "Removed: " << directorypath << std::endl;
+            directorypath.append(removeArg);
+            if (std::filesystem::exists(directorypath))
+            {
+                std::filesystem::remove_all(directorypath);
+                std::cout << "Removed: " << directorypath << std::endl;
+            }
+
+            else std::cout << "Path does not exist" << std::endl;
         }
-        else std::cout << "Path does not exist" << std::endl;
+
+        else std::cout << "Wrong format" << std::endl;
     }
     return 0;
 }
