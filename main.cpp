@@ -80,39 +80,42 @@ int main (int argc, char *argv[])
         }
 
         // ADD
-        // TODO: Work on error checking if the addArg is just a directory or the full path
         if (addArg != "NULL")
         {
             if (countDelimiter(addArg))
             {
                 parse(addArg, &directory, &file);
-                directorypath.append(directory);
-                std::filesystem::create_directories(directorypath);
-                filepath.append(addArg);
-                std::ofstream entry(filepath);
-
-                // TODO: Fix passwords not being proper length
-                if (generateArg != 0)
-                {
-                    if (symbolsArg)
+                if (file.size() != 0)
                     {
-                        password = genPasswordNoSymbol(generateArg);
-                        writePassword(password, entry);
+                    directorypath.append(directory);
+                    std::filesystem::create_directories(directorypath);
+                    filepath.append(addArg);
+                    std::ofstream entry(filepath);
+
+                    // TODO: Fix passwords not being proper length
+                    if (generateArg != 0)
+                    {
+                        if (symbolsArg)
+                        {
+                            password = genPasswordNoSymbol(generateArg);
+                            writePassword(password, entry);
+                        }
+                        else
+                        {
+                            password = genPasswordFull(generateArg);
+                            writePassword(password, entry);
+                        }
                     }
                     else
                     {
-                        password = genPasswordFull(generateArg);
-                        writePassword(password, entry);
+                        std::cout << "Enter password for this entry: ";
+                        std::getline(std::cin, passwordString);
+                        std::cout << "Password: " << passwordString << std::endl;
+                        entry << encode(passwordString);
+                        entry.close();
                     }
                 }
-                else
-                {
-                    std::cout << "Enter password for this entry: ";
-                    std::getline(std::cin, passwordString);
-                    std::cout << "Password: " << passwordString << std::endl;
-                    entry << encode(passwordString);
-                    entry.close();
-                }
+                else std::cout << "Wrong format" << std::endl;
             }
             else std::cout << "Wrong format" << std::endl;
         }
