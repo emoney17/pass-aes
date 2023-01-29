@@ -2,7 +2,7 @@ CC = g++
 SRC = *.cpp
 PROG = safepass
 
-build: $(PROG)
+all: $(PROG)
 
 clean:
 	rm -f $(PROG)
