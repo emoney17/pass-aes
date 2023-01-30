@@ -41,7 +41,7 @@ int main (int argc, char *argv[])
     app.add_flag("-i,--init", initArg, "First time users generate necessary files");
     app.add_option("-v,--view", viewArg, "View all entries with 'all' or a specific entry with 'Subject/Entry'");
     app.add_option("-g,--generate", generateArg, "Generate a password when adding an entry and pick the length");
-    app.add_flag("-s,--nosymbols", symbolsArg, "Generate a password with out special characters");
+    app.add_flag("-s,--nosymbols", symbolsArg, "Generate a password without special characters");
     app.add_option("-a,--add", addArg, "Add a new entry with the format 'Subject/Entry' and enter a password");
     app.add_option("-r,--remove", removeArg, "Remove a 'Subject/' or a 'Subject/Entry'");
 
