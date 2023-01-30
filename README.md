@@ -15,7 +15,7 @@ You can do all of this by copying and pasting this into your terminal
  ```
 ### Usage
 This password manager is my interpretation of [pass](https://www.passwordstore.org/).
-It will generate a directory for you to store all of your passwords and seperate them by subject. Each subject will be a directory and the file is the name of the actual website/program you are using. The password will be stored in the file after going through AES-128 encryption. To view any password you will used the "-v/--view" and enter the subject and entry. This will print out a decrypted password for you to copy.
+It will generate a directory for you to store all of your passwords and seperate them by subject. Each subject will be a directory and the file is the name of the actual website/program you will be using the password for. The password will encrypted using AES-128 and stored in the file. To view any password you will used the "-v/--view" and enter the subject and entry. This will print out a decrypted password for you to copy.
 ### Commands
 ```
 $ ./safepass -h
