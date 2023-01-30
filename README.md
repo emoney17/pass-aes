@@ -27,3 +27,24 @@ Options:
   -a,--add TEXT               Add a new entry with the format 'Subject/Entry' and enter a password
   -r,--remove TEXT            Remove a 'Subject/' or a 'Subject/Entry'
 ```
+### Example
+```
+$ ./safepass -a Personal/Shopping
+Enter password for this entry: password123
+Password: password123
+$ ./safepass -a Personal/Email -g 30 -s
+$ ./safepass -v all
+temp
+ ├── Personal
+ │   ├── Email
+ │   └── Shopping
+ ├── School
+ │   └── Email
+ └── Work
+     ├── Email
+     └── Website
+$ ./safepass -v Personal/Shopping
+Recovered password: password123
+$ ./safepass -v Personal/Email
+Recovered password: Z5swY6721pw2ZbMD9vLes8eZ41Q2U
+```
