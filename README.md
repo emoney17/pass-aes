@@ -2,10 +2,8 @@
 **NOTE: This is not to be used seriously, its just a demo. If you wish to use it seriously then I advise you to edit the code and move the important files (*.aes) to a better location.**
 **Also, this program works but it is still a work in progress**
 ### Requirements
-Cryptopp:
-* [github repo](https://github.com/weidai11/cryptopp)
-* [website](https://www.cryptopp.com/)
-* [wiki](https://www.cryptopp.com/wiki/Main_Page)
+[Cryptopp](https://github.com/weidai11/cryptopp)
+If you need help installing the library check out the [Wiki](https://www.cryptopp.com/wiki/Linux#Build_and_Install_the_Library)
 ### Build and Init
 To build this program simply clone the repo, cd into it and run make
 You should also '--init' to generate all the necessary files and direcetories
@@ -39,7 +37,9 @@ Options:
 $ ./safepass -a Personal/Shopping
 Enter password for this entry: password123
 Password: password123
+
 $ ./safepass -a Personal/Email -g 30 -s
+
 $ ./safepass -v all
 temp
  ├── Personal
@@ -52,6 +52,7 @@ temp
      └── Website
 $ ./safepass -v Personal/Shopping
 Recovered password: password123
+
 $ ./safepass -v Personal/Email
 Recovered password: Z5swY6721pw2ZbMD9vLes8eZ41Q2Ua
 ```
