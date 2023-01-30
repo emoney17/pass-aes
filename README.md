@@ -3,6 +3,7 @@
 **Also, this program works but it is still a work in progress**
 ### Requirements
 [Cryptopp](https://github.com/weidai11/cryptopp)
+
 If you need help installing the library check out the [Wiki](https://www.cryptopp.com/wiki/Linux#Build_and_Install_the_Library)
 ### Build and Init
 To build this program simply clone the repo, cd into it and run make
@@ -50,6 +51,7 @@ temp
  └── Work
      ├── Email
      └── Website
+
 $ ./safepass -v Personal/Shopping
 Recovered password: password123
 
