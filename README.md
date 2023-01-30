@@ -3,9 +3,9 @@
 **Also, this program works but it is still a work in progress**
 ### Requirements
 Cryptopp:
-*[github repo](https://github.com/weidai11/cryptopp)
-*[website](https://www.cryptopp.com/)
-*[wiki](https://www.cryptopp.com/wiki/Main_Page)
+* [github repo](https://github.com/weidai11/cryptopp)
+* [website](https://www.cryptopp.com/)
+* [wiki](https://www.cryptopp.com/wiki/Main_Page)
 ### Build and Init
 To build this program simply clone the repo, cd into it and run make
 You should also '--init' to generate all the necessary files and direcetories
