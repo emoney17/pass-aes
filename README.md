@@ -5,10 +5,12 @@
 [Cryptopp](https://github.com/weidai11/cryptopp)
 ### Run
 To run this program simply clone the repo, cd into it and run make
+You should also '--init' to generate all the necessary files and direcetories
  ```
  git clone https://github.com/emoney17/safepass.git
  cd safepass
  make
+ ./safepass --init
  ```
 ### Usage
 This password manager is my interpretation of [pass](https://www.passwordstore.org/).
