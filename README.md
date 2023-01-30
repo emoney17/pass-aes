@@ -3,10 +3,10 @@
 **Also, this program works but it is still a work in progress**
 ### Requirements
 [Cryptopp](https://github.com/weidai11/cryptopp)
-### Build
-To run this program simply clone the repo, cd into it and run make
+### Build and Init
+To build this program simply clone the repo, cd into it and run make
 You should also '--init' to generate all the necessary files and direcetories
-You can do all of this my copying and pasting this into your terminal
+You can do all of this by copying and pasting this into your terminal
  ```
  git clone https://github.com/emoney17/safepass.git
  cd safepass
@@ -50,5 +50,5 @@ temp
 $ ./safepass -v Personal/Shopping
 Recovered password: password123
 $ ./safepass -v Personal/Email
-Recovered password: Z5swY6721pw2ZbMD9vLes8eZ41Q2U
+Recovered password: Z5swY6721pw2ZbMD9vLes8eZ41Q2Ua
 ```
