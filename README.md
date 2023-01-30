@@ -3,9 +3,10 @@
 **Also, this program works but it is still a work in progress**
 ### Requirements
 [Cryptopp](https://github.com/weidai11/cryptopp)
-### Run
+### Build
 To run this program simply clone the repo, cd into it and run make
 You should also '--init' to generate all the necessary files and direcetories
+You can do all of this my copying and pasting this into your terminal
  ```
  git clone https://github.com/emoney17/safepass.git
  cd safepass
