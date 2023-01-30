@@ -1,6 +1,6 @@
 ## SafePass
 **NOTE: This is not to be used seriously, its just a demo. If you wish to use it seriously then I advise you to edit the code and move the important files (*.aes) to a better location.**
-**Also, this program works but it is still in progress**
+**Also, this program works but it is still a work in progress**
 ### Requirements
 [Cryptopp](https://github.com/weidai11/cryptopp)
 ### Run
