@@ -101,7 +101,6 @@ int main (int argc, char *argv[])
                     {
                         std::cout << "Enter password for this entry: ";
                         std::getline(std::cin, passwordString);
-                        std::cout << "Password: " << passwordString << std::endl;
                         entry << encode(passwordString);
                         entry.close();
                     }
