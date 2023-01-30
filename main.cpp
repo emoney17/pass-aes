@@ -21,7 +21,7 @@ bool countDelimiter(std::string s)
 
 int main (int argc, char *argv[])
 {
-    CLI::App app{"App description"};
+    CLI::App app{"A CLI password manager!"};
 
     Tree tree;
     std::string password;
