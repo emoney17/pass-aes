@@ -1,12 +1,12 @@
 CC = g++
+CFLAGS = -Wall -Wextra
 SRC = *.cpp
+LIBS = -l:libcryptopp.a
 PROG = safepass
 
-all: $(PROG)
+$(PROG): $(SRC)
+	$(CC) $(SRC) $(CFLAGS) $(LIBS) -o $(PROG)
 
 clean:
 	rm -f $(PROG)
 	rm -rf temp
-
-$(PROG): $(SRC)
-	$(CC) $(SRC) -Wall -Wextra -l:libcryptopp.a -o $(PROG)
