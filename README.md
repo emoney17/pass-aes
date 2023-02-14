@@ -7,7 +7,7 @@
 If you need help installing the library check out the [Wiki](https://www.cryptopp.com/wiki/Linux#Build_and_Install_the_Library)
 ### Build and Init
 To build this program simply clone the repo, cd into it and run make
-You should also '--init' to generate all the necessary files and direcetories
+You should also use the ```--init``` command to generate all the necessary files and directories
 You can do all of this by copying and pasting this into your terminal
  ```
  git clone https://github.com/emoney17/safepass.git
