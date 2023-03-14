@@ -9,7 +9,7 @@ If you need help installing the library check out the [Wiki](https://www.cryptop
 To build this program simply clone the repo, cd into it and run make
 You should also use the ```--init``` command to generate all the necessary files and directories
 You can do all of this by copying and pasting this into your terminal
- ```bash
+ ```
  git clone https://github.com/emoney17/safepass.git
  cd safepass
  make
@@ -19,7 +19,7 @@ You can do all of this by copying and pasting this into your terminal
 This password manager is my interpretation of [pass](https://www.passwordstore.org/).
 It will generate a directory for you to store all of your passwords and seperate them by subject. Each subject will be a directory and the file is the name of the actual website/program you will be using the password for. The password will encrypted using AES-128 and stored in the file. To view any password you will used the "-v/--view" and enter the subject and entry. This will print out a decrypted password for you to copy.
 ### Commands
-```bash
+```
 $ ./safepass -h
 A CLI password manager!
 Usage: ./safepass [OPTIONS]
@@ -34,7 +34,7 @@ Options:
   -r,--remove TEXT            Remove a 'Subject/' or a 'Subject/Entry'
 ```
 ### Example
-```bash
+```
 $ ./safepass -a Personal/Shopping
 Enter password for this entry: password123
 Password: password123
